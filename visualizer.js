@@ -59,19 +59,16 @@ function generateData() {
     createVisualizations(data);
     
     // Run AI and Cognitive Load analyses
-    analyzeAIPatterns(Object.keys(data.x).map(i => ({
-        x: data.x[i],
+    // Convert data arrays to array of objects
+    const dataPoints = data.x.map((x, i) => ({
+        x: x,
         y: data.y[i],
         timestamp: data.timestamp[i],
         duration: data.duration[i]
-    })));
+    }));
     
-    analyzeCognitiveLoad(Object.keys(data.x).map(i => ({
-        x: data.x[i],
-        y: data.y[i],
-        timestamp: data.timestamp[i],
-        duration: data.duration[i]
-    })));
+    analyzeAIPatterns(dataPoints);
+    analyzeCognitiveLoad(dataPoints);
 }
 
 function generateNaturalPattern(n) {
