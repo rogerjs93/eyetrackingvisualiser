@@ -1,6 +1,12 @@
 # Eye-Tracking Data Visualizer
 
-A comprehensive Python tool for visualizing eye-tracking data with multiple distribution and pattern visualizations for qualitative analysis.
+A comprehensive tool for visualizing eye-tracking data with multiple distribution and pattern visualizations for qualitative analysis.
+
+## 🌐 Live Demo
+
+**[Try it online here!](https://rogerjs93.github.io/eyetrackingvisualiser/)**
+
+The web version runs entirely in your browser - no installation needed!
 
 ## Features
 
@@ -42,6 +48,18 @@ This will install:
 - scipy - Advanced statistics and signal processing
 
 ## Quick Start
+
+### Option 1: Web Version (No Installation)
+
+Simply open **[https://rogerjs93.github.io/eyetrackingvisualiser/](https://rogerjs93.github.io/eyetrackingvisualiser/)** in your browser!
+
+The web version includes:
+- 6 different eye-tracking patterns
+- Interactive visualizations with zoom/pan
+- Real-time statistics
+- All processing done in your browser
+
+### Option 2: Python Version (Local)
 
 ### Run Demo with Sample Data
 
