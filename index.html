@@ -247,6 +247,8 @@
             <button class="tab" onclick="switchTab('scanpath')">🗺️ Scan Path</button>
             <button class="tab" onclick="switchTab('distributions')">📈 Distributions</button>
             <button class="tab" onclick="switchTab('temporal')">⏱️ Temporal</button>
+            <button class="tab" onclick="switchTab('ai')">🤖 AI Patterns</button>
+            <button class="tab" onclick="switchTab('cognitive')">🧠 Cognitive Load</button>
         </div>
         
         <div id="overview" class="tab-content active">
@@ -278,6 +280,24 @@
         <div id="temporal" class="tab-content">
             <div class="plot-container" id="plot-temporal"></div>
             <div class="plot-container" id="plot-velocity"></div>
+        </div>
+        
+        <div id="ai" class="tab-content">
+            <div class="plot-container">
+                <h2 style="color: #e74c3c; margin-bottom: 20px;">🤖 AI Pattern Recognition</h2>
+                <div id="ai-analysis" style="padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                    <p style="text-align: center; color: #6c757d;">Generate data to see AI analysis</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="cognitive" class="tab-content">
+            <div class="plot-container">
+                <h2 style="color: #9b59b6; margin-bottom: 20px;">🧠 Cognitive Load Analysis</h2>
+                <div id="cognitive-analysis" style="padding: 20px; background: #f8f9fa; border-radius: 10px;">
+                    <p style="text-align: center; color: #6c757d;">Generate data to see cognitive load metrics</p>
+                </div>
+            </div>
         </div>
     </div>
     

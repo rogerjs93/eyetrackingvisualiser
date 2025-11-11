@@ -15,6 +15,11 @@ from sample_data_generator import generate_sample_eyetracking_data
 from scipy.ndimage import gaussian_filter
 from scipy.stats import gaussian_kde
 
+# Import advanced analysis modules
+from pattern_recognition import GazePatternRecognizer
+from cognitive_load import CognitiveLoadAnalyzer
+from advanced_visualizations import AdvancedVisualizer
+
 # Initialize the Dash app
 app = dash.Dash(__name__)
 app.title = "Eye-Tracking Data Visualizer"
@@ -112,6 +117,12 @@ app.layout = html.Div([
                 style={'fontWeight': 'bold'}, selected_style={'fontWeight': 'bold', 'color': '#3498db'}),
         dcc.Tab(label='🎯 Attention Zones', value='attention',
                 style={'fontWeight': 'bold'}, selected_style={'fontWeight': 'bold', 'color': '#3498db'}),
+        dcc.Tab(label='🤖 AI Pattern Recognition', value='ai_patterns',
+                style={'fontWeight': 'bold'}, selected_style={'fontWeight': 'bold', 'color': '#e74c3c'}),
+        dcc.Tab(label='🧠 Cognitive Load', value='cognitive',
+                style={'fontWeight': 'bold'}, selected_style={'fontWeight': 'bold', 'color': '#9b59b6'}),
+        dcc.Tab(label='🎨 Advanced Viz', value='advanced',
+                style={'fontWeight': 'bold'}, selected_style={'fontWeight': 'bold', 'color': '#16a085'}),
     ], style={'marginBottom': '20px'}),
     
     # Content Area
@@ -240,6 +251,12 @@ def update_tab_content(tab, data_dict):
         return create_temporal_view(data)
     elif tab == 'attention':
         return create_attention_view(data)
+    elif tab == 'ai_patterns':
+        return create_ai_patterns_view(data)
+    elif tab == 'cognitive':
+        return create_cognitive_load_view(data)
+    elif tab == 'advanced':
+        return create_advanced_viz_view(data)
 
 
 def create_overview_dashboard(data):
@@ -546,6 +563,214 @@ def create_attention_view(data):
     return dcc.Graph(figure=fig)
 
 
+def create_ai_patterns_view(data):
+    """Create AI Pattern Recognition view."""
+    recognizer = GazePatternRecognizer(data)
+    
+    # Get all analyses
+    reading = recognizer.detect_reading_behavior()
+    expertise = recognizer.classify_expertise_level()
+    aois = recognizer.detect_areas_of_interest()
+    confusion = recognizer.detect_confusion_indicators()
+    narrative = recognizer.get_narrative_insights()
+    
+    # Create layout
+    return html.Div([
+        html.H2("🤖 AI Pattern Recognition Analysis", style={'color': '#e74c3c', 'marginBottom': '20px'}),
+        
+        # Narrative Summary
+        html.Div([
+            html.H3("📝 Analysis Summary", style={'color': '#34495e'}),
+            html.P(narrative, style={'fontSize': '16px', 'lineHeight': '1.8', 'padding': '15px',
+                                     'backgroundColor': '#ecf0f1', 'borderRadius': '8px'})
+        ], style={'marginBottom': '30px'}),
+        
+        # Metrics Grid
+        html.Div([
+            # Reading Behavior
+            html.Div([
+                html.H4("📖 Reading Behavior", style={'color': '#3498db', 'borderBottom': '2px solid #3498db'}),
+                html.P(f"Behavior: {reading['behavior'].title()}", style={'fontSize': '18px', 'fontWeight': 'bold'}),
+                html.P(f"Confidence: {reading['confidence']:.1%}"),
+                html.P(f"Left-to-right: {reading['metrics']['left_to_right_ratio']:.1%}"),
+                html.P(f"Return sweeps: {reading['metrics']['return_sweeps']}")
+            ], style={'padding': '20px', 'backgroundColor': '#fff', 'borderRadius': '10px',
+                     'boxShadow': '0 2px 8px rgba(0,0,0,0.1)', 'margin': '10px', 'minWidth': '220px'}),
+            
+            # Expertise Level
+            html.Div([
+                html.H4("🎓 Expertise Level", style={'color': '#9b59b6', 'borderBottom': '2px solid #9b59b6'}),
+                html.P(f"Level: {expertise['expertise'].title()}", style={'fontSize': '18px', 'fontWeight': 'bold'}),
+                html.P(f"Confidence: {expertise['confidence']:.1%}"),
+                html.P(f"Path efficiency: {expertise['metrics']['path_efficiency']:.1%}"),
+                html.P(f"Score: {expertise['score']:.2f}")
+            ], style={'padding': '20px', 'backgroundColor': '#fff', 'borderRadius': '10px',
+                     'boxShadow': '0 2px 8px rgba(0,0,0,0.1)', 'margin': '10px', 'minWidth': '220px'}),
+            
+            # Confusion Indicators
+            html.Div([
+                html.H4("⚠️ Confusion Level", style={'color': '#e74c3c', 'borderBottom': '2px solid #e74c3c'}),
+                html.P(f"Level: {confusion['confusion_level'].title()}", style={'fontSize': '18px', 'fontWeight': 'bold'}),
+                html.P(f"Score: {confusion['confusion_score']:.1%}"),
+                html.P(f"Revisit rate: {confusion['indicators']['revisit_rate']:.1%}"),
+                html.P(f"Erraticism: {confusion['indicators']['movement_erraticism']:.3f}")
+            ], style={'padding': '20px', 'backgroundColor': '#fff', 'borderRadius': '10px',
+                     'boxShadow': '0 2px 8px rgba(0,0,0,0.1)', 'margin': '10px', 'minWidth': '220px'}),
+            
+            # Areas of Interest
+            html.Div([
+                html.H4("🎯 Areas of Interest", style={'color': '#16a085', 'borderBottom': '2px solid #16a085'}),
+                html.P(f"AOIs Found: {aois['n_aois']}", style={'fontSize': '18px', 'fontWeight': 'bold'}),
+                html.P(f"Coverage: {aois['coverage']:.1%}"),
+                html.P(f"Noise points: {aois['n_noise_points']}")
+            ], style={'padding': '20px', 'backgroundColor': '#fff', 'borderRadius': '10px',
+                     'boxShadow': '0 2px 8px rgba(0,0,0,0.1)', 'margin': '10px', 'minWidth': '220px'}),
+            
+        ], style={'display': 'flex', 'flexWrap': 'wrap', 'justifyContent': 'center'}),
+        
+        # Recommendation
+        html.Div([
+            html.H4("💡 Recommendation", style={'color': '#f39c12'}),
+            html.P(confusion['recommendation'], style={'fontSize': '16px', 'padding': '15px',
+                                                       'backgroundColor': '#fff3cd', 'borderRadius': '8px',
+                                                       'border': '1px solid #f39c12'})
+        ], style={'marginTop': '30px'})
+    ])
+
+
+def create_cognitive_load_view(data):
+    """Create Cognitive Load Analysis view."""
+    analyzer = CognitiveLoadAnalyzer(data)
+    
+    # Get all metrics
+    entropy = analyzer.calculate_spatial_entropy()
+    fixation = analyzer.calculate_fixation_rate()
+    saccades = analyzer.calculate_saccade_metrics()
+    attention = analyzer.calculate_ambient_focal_attention()
+    transition = analyzer.calculate_gaze_transition_entropy()
+    difficulty = analyzer.measure_task_difficulty()
+    
+    # Create visualizations
+    timeline_fig = analyzer.create_attention_timeline()
+    
+    return html.Div([
+        html.H2("🧠 Cognitive Load Analysis", style={'color': '#9b59b6', 'marginBottom': '20px'}),
+        
+        # Overall Difficulty Score
+        html.Div([
+            html.H3("Overall Task Difficulty", style={'textAlign': 'center', 'color': '#34495e'}),
+            html.H1(f"{difficulty['overall_score']:.1f}/10", 
+                   style={'textAlign': 'center', 'fontSize': '60px', 'color': '#e74c3c', 'margin': '20px'}),
+            html.H4(f"Level: {difficulty['difficulty_level'].title()}", 
+                   style={'textAlign': 'center', 'color': '#7f8c8d'}),
+            html.P(difficulty['recommendation'], 
+                  style={'textAlign': 'center', 'fontSize': '16px', 'padding': '15px',
+                        'backgroundColor': '#ecf0f1', 'borderRadius': '8px', 'marginTop': '20px'})
+        ], style={'padding': '30px', 'backgroundColor': '#fff', 'borderRadius': '15px',
+                 'boxShadow': '0 4px 12px rgba(0,0,0,0.1)', 'marginBottom': '30px'}),
+        
+        # Metrics Grid
+        html.Div([
+            # Spatial Entropy
+            html.Div([
+                html.H4("🌐 Spatial Entropy", style={'color': '#3498db'}),
+                html.H2(f"{entropy['entropy']:.2f}", style={'color': '#2c3e50'}),
+                html.P(entropy['interpretation'], style={'fontSize': '14px', 'color': '#7f8c8d'})
+            ], style={'padding': '20px', 'backgroundColor': '#fff', 'borderRadius': '10px',
+                     'boxShadow': '0 2px 8px rgba(0,0,0,0.1)', 'margin': '10px', 'minWidth': '200px'}),
+            
+            # Fixation Rate
+            html.Div([
+                html.H4("👁️ Fixation Rate", style={'color': '#e74c3c'}),
+                html.H2(f"{fixation['fixations_per_second']:.1f}/s", style={'color': '#2c3e50'}),
+                html.P(f"Mean: {fixation['mean_fixation_duration']:.0f}ms", style={'fontSize': '14px'}),
+                html.P(fixation['interpretation'], style={'fontSize': '14px', 'color': '#7f8c8d'})
+            ], style={'padding': '20px', 'backgroundColor': '#fff', 'borderRadius': '10px',
+                     'boxShadow': '0 2px 8px rgba(0,0,0,0.1)', 'margin': '10px', 'minWidth': '200px'}),
+            
+            # Saccade Metrics
+            html.Div([
+                html.H4("⚡ Saccades", style={'color': '#f39c12'}),
+                html.H2(f"{saccades['mean_saccade_length']:.0f}px", style={'color': '#2c3e50'}),
+                html.P(f"Rate: {saccades['saccade_rate']:.1f}/s", style={'fontSize': '14px'}),
+                html.P(saccades['interpretation'], style={'fontSize': '14px', 'color': '#7f8c8d'})
+            ], style={'padding': '20px', 'backgroundColor': '#fff', 'borderRadius': '10px',
+                     'boxShadow': '0 2px 8px rgba(0,0,0,0.1)', 'margin': '10px', 'minWidth': '200px'}),
+            
+            # Attention Mode
+            html.Div([
+                html.H4("🎯 Attention Mode", style={'color': '#9b59b6'}),
+                html.H2(attention['dominant_mode'].title(), style={'color': '#2c3e50', 'fontSize': '24px'}),
+                html.P(f"Ambient: {attention['ambient_ratio']:.1%}", style={'fontSize': '14px'}),
+                html.P(f"Focal: {attention['focal_ratio']:.1%}", style={'fontSize': '14px'})
+            ], style={'padding': '20px', 'backgroundColor': '#fff', 'borderRadius': '10px',
+                     'boxShadow': '0 2px 8px rgba(0,0,0,0.1)', 'margin': '10px', 'minWidth': '200px'}),
+            
+            # Transition Entropy
+            html.Div([
+                html.H4("🔀 Predictability", style={'color': '#16a085'}),
+                html.H2(f"{transition['entropy']:.2f}", style={'color': '#2c3e50'}),
+                html.P(transition['interpretation'], style={'fontSize': '14px', 'color': '#7f8c8d'})
+            ], style={'padding': '20px', 'backgroundColor': '#fff', 'borderRadius': '10px',
+                     'boxShadow': '0 2px 8px rgba(0,0,0,0.1)', 'margin': '10px', 'minWidth': '200px'}),
+            
+        ], style={'display': 'flex', 'flexWrap': 'wrap', 'justifyContent': 'center', 'marginBottom': '30px'}),
+        
+        # Attention Timeline
+        dcc.Graph(figure=timeline_fig)
+    ])
+
+
+def create_advanced_viz_view(data):
+    """Create Advanced Visualizations view."""
+    viz = AdvancedVisualizer(data, screen_width, screen_height)
+    
+    # Create visualizations
+    sankey_fig = viz.create_sankey_diagram(grid_size=4)
+    network_fig = viz.create_network_graph(threshold=2)
+    viz_4d_fig = viz.create_4d_visualization()
+    velocity_fig = viz.create_velocity_heatmap()
+    
+    return html.Div([
+        html.H2("🎨 Advanced Visualizations", style={'color': '#16a085', 'marginBottom': '20px'}),
+        
+        html.P("Unique, publication-ready visualizations for in-depth analysis", 
+               style={'fontSize': '16px', 'color': '#7f8c8d', 'marginBottom': '30px'}),
+        
+        # Sankey Diagram
+        html.Div([
+            html.H3("🌊 Gaze Flow - Sankey Diagram", style={'color': '#3498db'}),
+            html.P("Shows how attention flows between different screen regions", 
+                   style={'color': '#7f8c8d', 'marginBottom': '15px'}),
+            dcc.Graph(figure=sankey_fig)
+        ], style={'marginBottom': '40px'}),
+        
+        # Network Graph
+        html.Div([
+            html.H3("🕸️ AOI Network Graph", style={'color': '#e74c3c'}),
+            html.P("Network showing relationships and transitions between Areas of Interest", 
+                   style={'color': '#7f8c8d', 'marginBottom': '15px'}),
+            dcc.Graph(figure=network_fig)
+        ], style={'marginBottom': '40px'}),
+        
+        # 4D Visualization
+        html.Div([
+            html.H3("🌌 4D Visualization", style={'color': '#9b59b6'}),
+            html.P("Combines X, Y position, time progression, and fixation duration in a single plot", 
+                   style={'color': '#7f8c8d', 'marginBottom': '15px'}),
+            dcc.Graph(figure=viz_4d_fig)
+        ], style={'marginBottom': '40px'}),
+        
+        # Velocity Heatmap
+        html.Div([
+            html.H3("⚡ Velocity Heatmap", style={'color': '#f39c12'}),
+            html.P("Shows eye movement speed across different screen regions", 
+                   style={'color': '#7f8c8d', 'marginBottom': '15px'}),
+            dcc.Graph(figure=velocity_fig)
+        ], style={'marginBottom': '40px'}),
+    ])
+
+
 if __name__ == '__main__':
     print("=" * 70)
     print("🎯 Eye-Tracking Data Visualizer - Interactive Dashboard")
@@ -556,6 +781,9 @@ if __name__ == '__main__':
     print("   • Generate synthetic eye-tracking data with different patterns")
     print("   • Interactive visualizations with zoom and pan")
     print("   • Real-time statistics")
+    print("   • AI Pattern Recognition")
+    print("   • Cognitive Load Analysis")
+    print("   • Advanced Visualizations")
     print("   • Multiple visualization modes")
     print("⚠️  Press Ctrl+C to stop the server\n")
     print("=" * 70)

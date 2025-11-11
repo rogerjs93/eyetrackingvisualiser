@@ -57,6 +57,21 @@ function generateData() {
     currentData = data;
     updateStatistics(data);
     createVisualizations(data);
+    
+    // Run AI and Cognitive Load analyses
+    analyzeAIPatterns(Object.keys(data.x).map(i => ({
+        x: data.x[i],
+        y: data.y[i],
+        timestamp: data.timestamp[i],
+        duration: data.duration[i]
+    })));
+    
+    analyzeCognitiveLoad(Object.keys(data.x).map(i => ({
+        x: data.x[i],
+        y: data.y[i],
+        timestamp: data.timestamp[i],
+        duration: data.duration[i]
+    })));
 }
 
 function generateNaturalPattern(n) {
@@ -529,6 +544,204 @@ function createTemporal(data) {
     
     Plotly.newPlot('plot-temporal', [xTrace, yTrace], layout);
     Plotly.newPlot('plot-velocity', [velTrace], velLayout);
+}
+
+// AI Pattern Recognition Analysis
+function analyzeAIPatterns(data) {
+    const x = data.map(d => d.x);
+    const y = data.map(d => d.y);
+    const duration = data.map(d => d.duration);
+    
+    // Detect reading behavior
+    const leftToRightRatio = x.slice(1).map((xi, i) => xi - x[i]).filter(d => d > 0).length / x.length;
+    const returnSweeps = x.slice(1).map((xi, i) => xi - x[i]).filter(d => d < -100).length;
+    const isReading = leftToRightRatio > 0.6 && returnSweeps > 5;
+    
+    // Calculate expertise (path efficiency)
+    const straightDist = Math.sqrt(Math.pow(x[x.length-1] - x[0], 2) + Math.pow(y[y.length-1] - y[0], 2));
+    let actualPath = 0;
+    for(let i = 1; i < x.length; i++) {
+        actualPath += Math.sqrt(Math.pow(x[i] - x[i-1], 2) + Math.pow(y[i] - y[i-1], 2));
+    }
+    const pathEfficiency = straightDist / actualPath;
+    const expertiseLevel = pathEfficiency > 0.7 ? 'Expert' : pathEfficiency > 0.4 ? 'Intermediate' : 'Novice';
+    
+    // Calculate confusion indicators
+    let revisits = 0;
+    for(let i = 0; i < x.length - 10; i++) {
+        for(let j = i + 10; j < x.length; j++) {
+            const dist = Math.sqrt(Math.pow(x[j] - x[i], 2) + Math.pow(y[j] - y[i], 2));
+            if(dist < 50) revisits++;
+        }
+    }
+    const revisitRate = revisits / x.length;
+    const confusionLevel = revisitRate > 0.7 ? 'High' : revisitRate > 0.4 ? 'Moderate' : 'Low';
+    
+    // Spatial entropy
+    const bins = 10;
+    const grid = Array(bins).fill().map(() => Array(bins).fill(0));
+    x.forEach((xi, i) => {
+        const binX = Math.min(Math.floor(xi / screenWidth * bins), bins - 1);
+        const binY = Math.min(Math.floor(y[i] / screenHeight * bins), bins - 1);
+        grid[binY][binX]++;
+    });
+    let entropy = 0;
+    const total = x.length;
+    grid.forEach(row => {
+        row.forEach(count => {
+            if(count > 0) {
+                const p = count / total;
+                entropy -= p * Math.log2(p);
+            }
+        });
+    });
+    
+    // Display results
+    const aiDiv = document.getElementById('ai-analysis');
+    aiDiv.innerHTML = `
+        <div style="margin-bottom: 30px; padding: 20px; background: white; border-radius: 10px;">
+            <h3 style="color: #34495e; margin-bottom: 15px;">📝 Analysis Summary</h3>
+            <p style="font-size: 16px; line-height: 1.8;">
+                The user exhibited ${isReading ? 'reading' : 'scanning'} behavior with a 
+                ${expertiseLevel.toLowerCase()} efficiency level. Pattern shows ${confusionLevel.toLowerCase()} 
+                confusion with ${revisits} revisit areas detected. Spatial entropy of ${entropy.toFixed(2)} indicates 
+                ${entropy > 2.5 ? 'exploratory' : 'focused'} viewing patterns.
+            </p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div style="padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h4 style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px;">📖 Reading Behavior</h4>
+                <p style="font-size: 18px; font-weight: bold; margin: 15px 0;">${isReading ? 'Reading' : 'Scanning'}</p>
+                <p>L-to-R: ${(leftToRightRatio * 100).toFixed(1)}%</p>
+                <p>Return sweeps: ${returnSweeps}</p>
+            </div>
+            
+            <div style="padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h4 style="color: #9b59b6; border-bottom: 2px solid #9b59b6; padding-bottom: 10px;">🎓 Expertise</h4>
+                <p style="font-size: 18px; font-weight: bold; margin: 15px 0;">${expertiseLevel}</p>
+                <p>Path efficiency: ${(pathEfficiency * 100).toFixed(1)}%</p>
+            </div>
+            
+            <div style="padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h4 style="color: #e74c3c; border-bottom: 2px solid #e74c3c; padding-bottom: 10px;">⚠️ Confusion</h4>
+                <p style="font-size: 18px; font-weight: bold; margin: 15px 0;">${confusionLevel}</p>
+                <p>Revisit rate: ${(revisitRate * 100).toFixed(1)}%</p>
+                <p>Revisits: ${revisits}</p>
+            </div>
+            
+            <div style="padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h4 style="color: #16a085; border-bottom: 2px solid #16a085; padding-bottom: 10px;">🌐 Entropy</h4>
+                <p style="font-size: 18px; font-weight: bold; margin: 15px 0;">${entropy.toFixed(2)}</p>
+                <p>${entropy > 2.5 ? 'High dispersion' : 'Focused attention'}</p>
+            </div>
+        </div>
+    `;
+}
+
+// Cognitive Load Analysis
+function analyzeCognitiveLoad(data) {
+    const x = data.map(d => d.x);
+    const y = data.map(d => d.y);
+    const duration = data.map(d => d.duration);
+    const timestamp = data.map(d => d.timestamp);
+    
+    // Fixation rate
+    const totalTime = (timestamp[timestamp.length - 1] - timestamp[0]) / 1000; // seconds
+    const fixationRate = x.length / totalTime;
+    const meanDuration = duration.reduce((a, b) => a + b) / duration.length;
+    
+    // Saccade metrics
+    let saccadeLengths = [];
+    for(let i = 1; i < x.length; i++) {
+        const length = Math.sqrt(Math.pow(x[i] - x[i-1], 2) + Math.pow(y[i] - y[i-1], 2));
+        saccadeLengths.push(length);
+    }
+    const meanSaccade = saccadeLengths.reduce((a, b) => a + b) / saccadeLengths.length;
+    const saccadeRate = saccadeLengths.length / totalTime;
+    
+    // Spatial entropy (from AI analysis)
+    const bins = 10;
+    const grid = Array(bins).fill().map(() => Array(bins).fill(0));
+    x.forEach((xi, i) => {
+        const binX = Math.min(Math.floor(xi / screenWidth * bins), bins - 1);
+        const binY = Math.min(Math.floor(y[i] / screenHeight * bins), bins - 1);
+        grid[binY][binX]++;
+    });
+    let entropy = 0;
+    const total = x.length;
+    grid.forEach(row => {
+        row.forEach(count => {
+            if(count > 0) {
+                const p = count / total;
+                entropy -= p * Math.log2(p);
+            }
+        });
+    });
+    
+    // Ambient vs Focal attention
+    const ambientThreshold = 250; // ms
+    const ambientCount = duration.filter(d => d < ambientThreshold).length;
+    const focalCount = duration.filter(d => d >= ambientThreshold).length;
+    const ambientRatio = ambientCount / duration.length;
+    const focalRatio = focalCount / duration.length;
+    const dominantMode = ambientRatio > focalRatio ? 'Ambient' : 'Focal';
+    
+    // Task difficulty score
+    const difficultyScore = (
+        (entropy / 4.0) * 3 +
+        (fixationRate / 10) * 2 +
+        (meanDuration / 500) * 2 +
+        (meanSaccade / 200) * 2 +
+        (ambientRatio) * 1
+    );
+    const normalizedScore = Math.min(10, difficultyScore);
+    const difficultyLevel = normalizedScore > 7 ? 'High' : normalizedScore > 4 ? 'Moderate' : 'Low';
+    
+    // Display results
+    const cogDiv = document.getElementById('cognitive-analysis');
+    cogDiv.innerHTML = `
+        <div style="text-align: center; padding: 30px; background: white; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <h3 style="color: #34495e; margin-bottom: 10px;">Overall Task Difficulty</h3>
+            <h1 style="font-size: 60px; color: #e74c3c; margin: 20px 0;">${normalizedScore.toFixed(1)}/10</h1>
+            <h4 style="color: #7f8c8d;">Level: ${difficultyLevel}</h4>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div style="padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h4 style="color: #3498db;">🌐 Spatial Entropy</h4>
+                <h2 style="color: #2c3e50; margin: 15px 0;">${entropy.toFixed(2)}</h2>
+                <p style="font-size: 14px; color: #7f8c8d;">
+                    ${entropy > 2.5 ? 'High dispersion' : 'Focused attention'}
+                </p>
+            </div>
+            
+            <div style="padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h4 style="color: #e74c3c;">👁️ Fixation Rate</h4>
+                <h2 style="color: #2c3e50; margin: 15px 0;">${fixationRate.toFixed(1)}/s</h2>
+                <p style="font-size: 14px;">Mean: ${meanDuration.toFixed(0)}ms</p>
+                <p style="font-size: 14px; color: #7f8c8d;">
+                    ${fixationRate > 3 ? 'High processing' : 'Normal processing'}
+                </p>
+            </div>
+            
+            <div style="padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h4 style="color: #f39c12;">⚡ Saccades</h4>
+                <h2 style="color: #2c3e50; margin: 15px 0;">${meanSaccade.toFixed(0)}px</h2>
+                <p style="font-size: 14px;">Rate: ${saccadeRate.toFixed(1)}/s</p>
+                <p style="font-size: 14px; color: #7f8c8d;">
+                    ${meanSaccade > 150 ? 'Long jumps' : 'Short movements'}
+                </p>
+            </div>
+            
+            <div style="padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h4 style="color: #9b59b6;">🎯 Attention Mode</h4>
+                <h2 style="color: #2c3e50; margin: 15px 0; font-size: 20px;">${dominantMode}</h2>
+                <p style="font-size: 14px;">Ambient: ${(ambientRatio * 100).toFixed(1)}%</p>
+                <p style="font-size: 14px;">Focal: ${(focalRatio * 100).toFixed(1)}%</p>
+            </div>
+        </div>
+    `;
 }
 
 // Generate initial data on load
