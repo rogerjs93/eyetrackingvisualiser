@@ -585,18 +585,7 @@ def create_ai_patterns_view(data):
     expertise = recognizer.classify_expertise_level()
     aois = recognizer.detect_areas_of_interest()
     confusion = recognizer.detect_confusion_indicators()
-    narrative = recognizer.get_narrative_insights()
     
-    # Create layout
-    return html.Div([
-        html.H2("🤖 AI Pattern Recognition Analysis", style={'color': '#e74c3c', 'marginBottom': '20px'}),
-        
-        # Narrative Summary
-        html.Div([
-            html.H3("📝 Analysis Summary", style={'color': '#34495e'}),
-            html.P(narrative, style={'fontSize': '16px', 'lineHeight': '1.8', 'padding': '15px',
-                                     'backgroundColor': '#ecf0f1', 'borderRadius': '8px'})
-        ], style={'marginBottom': '30px'}),
     return html.Div([
         html.H3("🤖 AI Pattern Recognition", style={'textAlign': 'center', 'color': '#667eea', 'marginBottom': '30px'}),
         
@@ -673,25 +662,18 @@ def create_cognitive_load_view(data):
     transition = analyzer.calculate_gaze_transition_entropy()
     difficulty = analyzer.measure_task_difficulty()
     
+    # Determine difficulty color
+    difficulty_score = difficulty.get('difficulty_score', difficulty.get('overall_score', 5))
+    if difficulty_score > 7:
+        difficulty_color = '#e74c3c'
+    elif difficulty_score > 4:
+        difficulty_color = '#f39c12'
+    else:
+        difficulty_color = '#27ae60'
+    
     # Create visualizations
     timeline_fig = analyzer.create_attention_timeline()
     
-    return html.Div([
-        html.H2("🧠 Cognitive Load Analysis", style={'color': '#9b59b6', 'marginBottom': '20px'}),
-        
-        # Overall Difficulty Score
-        html.Div([
-            html.H3("Overall Task Difficulty", style={'textAlign': 'center', 'color': '#34495e'}),
-            html.H1(f"{difficulty['overall_score']:.1f}/10", 
-                   style={'textAlign': 'center', 'fontSize': '60px', 'color': '#e74c3c', 'margin': '20px'}),
-            html.H4(f"Level: {difficulty['difficulty_level'].title()}", 
-                   style={'textAlign': 'center', 'color': '#7f8c8d'}),
-            html.P(difficulty['recommendation'], 
-                  style={'textAlign': 'center', 'fontSize': '16px', 'padding': '15px',
-                        'backgroundColor': '#ecf0f1', 'borderRadius': '8px', 'marginTop': '20px'})
-        ], style={'padding': '30px', 'backgroundColor': '#fff', 'borderRadius': '15px',
-                 'boxShadow': '0 4px 12px rgba(0,0,0,0.1)', 'marginBottom': '30px'}),
-        
     return html.Div([
         html.H3("🧠 Cognitive Load Analysis", style={'textAlign': 'center', 'color': '#764ba2', 'marginBottom': '30px'}),
         
