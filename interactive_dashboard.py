@@ -21,9 +21,16 @@ from cognitive_load import CognitiveLoadAnalyzer
 from advanced_visualizations import AdvancedVisualizer
 from methodology_explanations import format_explanation_html
 
+# Import autism data loader
+from autism_data_loader import AutismDataLoader
+
 # Initialize the Dash app
 app = dash.Dash(__name__)
 app.title = "Eye-Tracking Data Visualizer"
+
+# Initialize autism data loader
+autism_loader = AutismDataLoader()
+available_participants = autism_loader.get_available_participants()
 
 # Global variables for data storage
 current_data = None
@@ -41,6 +48,33 @@ app.layout = html.Div([
     
     # Control Panel
     html.Div([
+        # Data Source Selection
+        html.Div([
+            html.Label("Data Source:", style={'fontWeight': 'bold', 'marginBottom': '5px'}),
+            dcc.Dropdown(
+                id='data-source-dropdown',
+                options=[
+                    {'label': '🧪 Synthetic Data', 'value': 'synthetic'},
+                    {'label': '🧩 Autism Dataset', 'value': 'autism'}
+                ],
+                value='synthetic',
+                style={'width': '100%'}
+            ),
+        ], style={'width': '15%', 'display': 'inline-block', 'marginRight': '20px'}),
+        
+        # Autism Participant Selection (shown when autism is selected)
+        html.Div([
+            html.Label("Participant:", style={'fontWeight': 'bold', 'marginBottom': '5px'}),
+            dcc.Dropdown(
+                id='participant-dropdown',
+                options=[{'label': f'Participant {pid}', 'value': pid} 
+                        for pid in available_participants],
+                value=available_participants[0] if available_participants else None,
+                style={'width': '100%'},
+                disabled=True
+            ),
+        ], style={'width': '15%', 'display': 'inline-block', 'marginRight': '20px'}, id='participant-div'),
+        
         html.Div([
             html.Label("Data Pattern:", style={'fontWeight': 'bold', 'marginBottom': '5px'}),
             dcc.Dropdown(
@@ -56,7 +90,7 @@ app.layout = html.Div([
                 value='natural',
                 style={'width': '100%'}
             ),
-        ], style={'width': '20%', 'display': 'inline-block', 'marginRight': '20px'}),
+        ], style={'width': '15%', 'display': 'inline-block', 'marginRight': '20px'}, id='pattern-div'),
         
         html.Div([
             html.Label("Number of Points:", style={'fontWeight': 'bold', 'marginBottom': '5px'}),
@@ -69,7 +103,7 @@ app.layout = html.Div([
                 marks={100: '100', 250: '250', 500: '500', 750: '750', 1000: '1000'},
                 tooltip={"placement": "bottom", "always_visible": True}
             ),
-        ], style={'width': '25%', 'display': 'inline-block', 'marginRight': '20px'}),
+        ], style={'width': '20%', 'display': 'inline-block', 'marginRight': '20px'}, id='points-div'),
         
         html.Div([
             html.Label("Screen Resolution:", style={'fontWeight': 'bold', 'marginBottom': '5px'}),
@@ -129,26 +163,54 @@ app.layout = html.Div([
     # Content Area
     html.Div(id='tab-content', style={'padding': '20px'}),
     
-    # Store component for data
+    # Store components for data
     dcc.Store(id='data-store'),
+    dcc.Store(id='participant-info-store'),
     
 ], style={'maxWidth': '1800px', 'margin': '0 auto', 'padding': '20px', 'fontFamily': 'Arial, sans-serif'})
 
 
+# Callback to show/hide controls based on data source
+@app.callback(
+    [Output('participant-dropdown', 'disabled'),
+     Output('pattern-div', 'style'),
+     Output('points-div', 'style')],
+    [Input('data-source-dropdown', 'value')]
+)
+def toggle_controls(data_source):
+    if data_source == 'autism':
+        # Enable participant dropdown, hide synthetic controls
+        return (
+            False,
+            {'width': '15%', 'display': 'none', 'marginRight': '20px'},
+            {'width': '20%', 'display': 'none', 'marginRight': '20px'}
+        )
+    else:
+        # Disable participant dropdown, show synthetic controls
+        return (
+            True,
+            {'width': '15%', 'display': 'inline-block', 'marginRight': '20px'},
+            {'width': '20%', 'display': 'inline-block', 'marginRight': '20px'}
+        )
+
 # Callback to generate data
 @app.callback(
     [Output('data-store', 'data'),
-     Output('stats-panel', 'children')],
+     Output('stats-panel', 'children'),
+     Output('participant-info-store', 'data')],
     [Input('generate-button', 'n_clicks')],
-    [State('pattern-dropdown', 'value'),
+    [State('data-source-dropdown', 'value'),
+     State('participant-dropdown', 'value'),
+     State('pattern-dropdown', 'value'),
      State('points-slider', 'value'),
      State('resolution-dropdown', 'value')]
 )
-def generate_data(n_clicks, pattern, n_points, resolution):
+def generate_data(n_clicks, data_source, participant_id, pattern, n_points, resolution):
     global current_data, screen_width, screen_height
     
     if n_clicks == 0:
         # Generate initial data
+        data_source = 'synthetic'
         pattern = 'natural'
         n_points = 500
         resolution = '1920x1080'
@@ -156,24 +218,43 @@ def generate_data(n_clicks, pattern, n_points, resolution):
     # Parse resolution
     screen_width, screen_height = map(int, resolution.split('x'))
     
-    # Generate data
-    data = generate_sample_eyetracking_data(
-        n_points=n_points,
-        screen_width=screen_width,
-        screen_height=screen_height,
-        pattern=pattern,
-        seed=42 + n_clicks
-    )
+    participant_info = None
+    
+    # Load data based on source
+    if data_source == 'autism' and participant_id is not None:
+        try:
+            # Load autism data
+            data = autism_loader.load_participant_data(participant_id, screen_width, screen_height)
+            participant_info = autism_loader.get_participant_info(participant_id)
+        except Exception as e:
+            # Fallback to synthetic if loading fails
+            print(f"Error loading autism data: {e}")
+            data = generate_sample_eyetracking_data(
+                n_points=n_points,
+                screen_width=screen_width,
+                screen_height=screen_height,
+                pattern=pattern,
+                seed=42 + n_clicks
+            )
+    else:
+        # Generate synthetic data
+        data = generate_sample_eyetracking_data(
+            n_points=n_points,
+            screen_width=screen_width,
+            screen_height=screen_height,
+            pattern=pattern,
+            seed=42 + n_clicks
+        )
     
     current_data = data
     
     # Create statistics panel
-    stats = create_statistics_panel(data)
+    stats = create_statistics_panel(data, participant_info)
     
-    return data.to_dict('records'), stats
+    return data.to_dict('records'), stats, participant_info
 
 
-def create_statistics_panel(data):
+def create_statistics_panel(data, participant_info=None):
     """Create statistics display panel."""
     x = data['x'].values
     y = data['y'].values
@@ -188,9 +269,23 @@ def create_statistics_panel(data):
         'textAlign': 'center'
     }
     
-    stats = [
+    stats = []
+    
+    # Add participant info if available
+    if participant_info:
+        stats.append(
+            html.Div([
+                html.H4("� Participant", style={'color': '#9b59b6', 'marginBottom': '5px'}),
+                html.P(f"ID: {participant_info.get('ParticipantID', 'N/A')}", style={'margin': '5px'}),
+                html.P(f"Age: {participant_info.get('Age', 'N/A')}", style={'margin': '5px'}),
+                html.P(f"Gender: {participant_info.get('Gender', 'N/A')}", style={'margin': '5px'}),
+                html.P(f"CARS: {participant_info.get('CARS Score', 'N/A')}", style={'margin': '5px', 'fontSize': '14px'})
+            ], style={**stats_style, 'backgroundColor': '#e8f4f8', 'minWidth': '180px'})
+        )
+    
+    stats.extend([
         html.Div([
-            html.H4("📊 Total Points", style={'color': '#3498db', 'marginBottom': '5px'}),
+            html.H4("�📊 Total Points", style={'color': '#3498db', 'marginBottom': '5px'}),
             html.H2(str(len(data)), style={'color': '#2c3e50', 'margin': '0'})
         ], style=stats_style),
         
@@ -205,7 +300,7 @@ def create_statistics_panel(data):
             html.P(f"Mean: {np.mean(y):.0f}px", style={'margin': '5px'}),
             html.P(f"Std: {np.std(y):.0f}px", style={'margin': '5px'})
         ], style=stats_style),
-    ]
+    ])
     
     if 'duration' in data.columns:
         dur = data['duration'].values
