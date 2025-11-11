@@ -132,9 +132,13 @@ class AutismDataLoader:
             (processed['event_type'] != 'Blink')
         ].copy()
         
+        # Sort by timestamp
+        processed = processed.sort_values('timestamp').reset_index(drop=True)
+        
         # Reset timestamp to start at 0
         if len(processed) > 0:
-            processed['timestamp'] = processed['timestamp'] - processed['timestamp'].min()
+            min_timestamp = processed['timestamp'].min()
+            processed['timestamp'] = processed['timestamp'] - min_timestamp
         
         # Calculate duration for each fixation
         processed['duration'] = self._calculate_durations(processed)
@@ -142,9 +146,6 @@ class AutismDataLoader:
         # Ensure coordinates are within screen bounds
         processed['x'] = processed['x'].clip(0, screen_width)
         processed['y'] = processed['y'].clip(0, screen_height)
-        
-        # Reset index
-        processed = processed.reset_index(drop=True)
         
         return processed
     
