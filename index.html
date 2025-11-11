@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye-Tracking Data Visualizer</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .control-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .control-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-item label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+        
+        .control-item select,
+        .control-item input {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .control-item select:focus,
+        .control-item input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: block;
+            margin: 20px auto 0;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #fff;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h3 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            padding: 0 30px;
+            border-bottom: 2px solid #dee2e6;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: bold;
+            color: #6c757d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .tab:hover {
+            color: #667eea;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .plot-container {
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .plot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .plot-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Eye-Tracking Data Visualizer</h1>
+            <p>Interactive Analysis of Eye Movement Patterns</p>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <div class="control-item">
+                    <label for="pattern">📊 Data Pattern</label>
+                    <select id="pattern">
+                        <option value="natural">🔍 Natural Viewing</option>
+                        <option value="reading">📖 Reading Pattern</option>
+                        <option value="centered">🎯 Center-Focused</option>
+                        <option value="scattered">🎲 Scattered Random</option>
+                        <option value="f_pattern">📱 F-Pattern (Web)</option>
+                        <option value="z_pattern">⚡ Z-Pattern</option>
+                    </select>
+                </div>
+                
+                <div class="control-item">
+                    <label for="points">📍 Number of Points: <span id="pointsValue">500</span></label>
+                    <input type="range" id="points" min="100" max="1000" step="50" value="500">
+                </div>
+                
+                <div class="control-item">
+                    <label for="resolution">🖥️ Screen Resolution</label>
+                    <select id="resolution">
+                        <option value="1920x1080">1920x1080 (Full HD)</option>
+                        <option value="2560x1440">2560x1440 (2K)</option>
+                        <option value="3840x2160">3840x2160 (4K)</option>
+                        <option value="1366x768">1366x768 (Laptop)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="generate-btn" onclick="generateData()">🔄 Generate Data</button>
+        </div>
+        
+        <div class="stats" id="stats"></div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('overview')">📊 Overview</button>
+            <button class="tab" onclick="switchTab('heatmap')">🔥 Heatmap</button>
+            <button class="tab" onclick="switchTab('scanpath')">🗺️ Scan Path</button>
+            <button class="tab" onclick="switchTab('distributions')">📈 Distributions</button>
+            <button class="tab" onclick="switchTab('temporal')">⏱️ Temporal</button>
+        </div>
+        
+        <div id="overview" class="tab-content active">
+            <div class="plot-grid">
+                <div class="plot-container" id="plot-heatmap-overview"></div>
+                <div class="plot-container" id="plot-scanpath-overview"></div>
+                <div class="plot-container" id="plot-duration-overview"></div>
+                <div class="plot-container" id="plot-spatial-overview"></div>
+            </div>
+        </div>
+        
+        <div id="heatmap" class="tab-content">
+            <div class="plot-container" id="plot-heatmap"></div>
+        </div>
+        
+        <div id="scanpath" class="tab-content">
+            <div class="plot-container" id="plot-scanpath"></div>
+        </div>
+        
+        <div id="distributions" class="tab-content">
+            <div class="plot-grid">
+                <div class="plot-container" id="plot-x-dist"></div>
+                <div class="plot-container" id="plot-y-dist"></div>
+                <div class="plot-container" id="plot-duration"></div>
+                <div class="plot-container" id="plot-density"></div>
+            </div>
+        </div>
+        
+        <div id="temporal" class="tab-content">
+            <div class="plot-container" id="plot-temporal"></div>
+            <div class="plot-container" id="plot-velocity"></div>
+        </div>
+    </div>
+    
+    <script src="visualizer.js"></script>
+</body>
+</html>
