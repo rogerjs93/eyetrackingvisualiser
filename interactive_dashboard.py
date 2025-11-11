@@ -19,6 +19,7 @@ from scipy.stats import gaussian_kde
 from pattern_recognition import GazePatternRecognizer
 from cognitive_load import CognitiveLoadAnalyzer
 from advanced_visualizations import AdvancedVisualizer
+from methodology_explanations import format_explanation_html
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
@@ -340,6 +341,11 @@ def create_heatmap_view(data):
     x = data['x'].values
     y = data['y'].values
     
+    # Add explanation
+    explanation = html.Div([
+        dcc.Markdown(format_explanation_html('heatmap'), dangerously_allow_html=True)
+    ])
+    
     # Create heatmap
     heatmap, xedges, yedges = np.histogram2d(x, y, bins=[60, 60],
                                               range=[[0, screen_width], [0, screen_height]])
@@ -394,8 +400,15 @@ def create_heatmap_view(data):
         height=500
     )
     
+    # Add scan path explanation
+    scan_explanation = html.Div([
+        dcc.Markdown(format_explanation_html('scan_path'), dangerously_allow_html=True)
+    ])
+    
     return html.Div([
+        explanation,
         dcc.Graph(figure=fig1),
+        scan_explanation,
         dcc.Graph(figure=fig2)
     ])
 
@@ -584,6 +597,16 @@ def create_ai_patterns_view(data):
             html.P(narrative, style={'fontSize': '16px', 'lineHeight': '1.8', 'padding': '15px',
                                      'backgroundColor': '#ecf0f1', 'borderRadius': '8px'})
         ], style={'marginBottom': '30px'}),
+    return html.Div([
+        html.H3("🤖 AI Pattern Recognition", style={'textAlign': 'center', 'color': '#667eea', 'marginBottom': '30px'}),
+        
+        # Add explanations
+        html.Div([
+            dcc.Markdown(format_explanation_html('reading_behavior'), dangerously_allow_html=True),
+            dcc.Markdown(format_explanation_html('expertise_classification'), dangerously_allow_html=True),
+            dcc.Markdown(format_explanation_html('confusion_detection'), dangerously_allow_html=True),
+            dcc.Markdown(format_explanation_html('aoi_detection'), dangerously_allow_html=True),
+        ]),
         
         # Metrics Grid
         html.Div([
@@ -668,6 +691,27 @@ def create_cognitive_load_view(data):
                         'backgroundColor': '#ecf0f1', 'borderRadius': '8px', 'marginTop': '20px'})
         ], style={'padding': '30px', 'backgroundColor': '#fff', 'borderRadius': '15px',
                  'boxShadow': '0 4px 12px rgba(0,0,0,0.1)', 'marginBottom': '30px'}),
+        
+    return html.Div([
+        html.H3("🧠 Cognitive Load Analysis", style={'textAlign': 'center', 'color': '#764ba2', 'marginBottom': '30px'}),
+        
+        # Add explanations
+        html.Div([
+            dcc.Markdown(format_explanation_html('spatial_entropy'), dangerously_allow_html=True),
+            dcc.Markdown(format_explanation_html('fixation_rate'), dangerously_allow_html=True),
+            dcc.Markdown(format_explanation_html('saccade_metrics'), dangerously_allow_html=True),
+            dcc.Markdown(format_explanation_html('ambient_focal_attention'), dangerously_allow_html=True),
+            dcc.Markdown(format_explanation_html('task_difficulty'), dangerously_allow_html=True),
+        ]),
+        
+        # Difficulty Score
+        html.Div([
+            html.H3("Task Difficulty Score", style={'textAlign': 'center', 'color': '#2c3e50'}),
+            html.H1(f"{difficulty['difficulty_score']:.1f}/10", 
+                   style={'textAlign': 'center', 'color': difficulty_color, 'fontSize': '72px', 'margin': '20px 0'}),
+            html.P(difficulty['interpretation'], 
+                  style={'textAlign': 'center', 'fontSize': '18px', 'color': '#7f8c8d'})
+        ], style={'backgroundColor': '#ecf0f1', 'borderRadius': '15px', 'padding': '30px', 'marginBottom': '30px'}),
         
         # Metrics Grid
         html.Div([

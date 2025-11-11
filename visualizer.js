@@ -312,6 +312,20 @@ function createVisualizations(data) {
     createSpatialDist(data);
     createDistributions(data);
     createTemporal(data);
+    
+    // Add explanations to tabs
+    addExplanationsToUI();
+}
+
+function addExplanationsToUI() {
+    // Add explanation to heatmap tab
+    const heatmapTab = document.getElementById('heatmap');
+    if (heatmapTab && !heatmapTab.querySelector('.explanation')) {
+        const explanationDiv = document.createElement('div');
+        explanationDiv.className = 'explanation';
+        explanationDiv.innerHTML = formatExplanationHTML('heatmap') + formatExplanationHTML('scan_path');
+        heatmapTab.insertBefore(explanationDiv, heatmapTab.firstChild);
+    }
 }
 
 function createHeatmap(data) {
@@ -596,6 +610,9 @@ function analyzeAIPatterns(data) {
     // Display results
     const aiDiv = document.getElementById('ai-analysis');
     aiDiv.innerHTML = `
+        ${formatExplanationHTML('reading_behavior')}
+        ${formatExplanationHTML('spatial_entropy')}
+        
         <div style="margin-bottom: 30px; padding: 20px; background: white; border-radius: 10px;">
             <h3 style="color: #34495e; margin-bottom: 15px;">📝 Analysis Summary</h3>
             <p style="font-size: 16px; line-height: 1.8;">
@@ -698,6 +715,9 @@ function analyzeCognitiveLoad(data) {
     // Display results
     const cogDiv = document.getElementById('cognitive-analysis');
     cogDiv.innerHTML = `
+        ${formatExplanationHTML('fixation_rate')}
+        ${formatExplanationHTML('task_difficulty')}
+        
         <div style="text-align: center; padding: 30px; background: white; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
             <h3 style="color: #34495e; margin-bottom: 10px;">Overall Task Difficulty</h3>
             <h1 style="font-size: 60px; color: #e74c3c; margin: 20px 0;">${normalizedScore.toFixed(1)}/10</h1>
