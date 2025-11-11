@@ -1,6 +1,6 @@
 # Eye-Tracking Data Visualizer
 
-A comprehensive tool for visualizing eye-tracking data with multiple distribution and pattern visualizations for qualitative analysis.
+A comprehensive research-grade tool for visualizing and analyzing eye-tracking data with AI-powered pattern recognition, statistical comparison, cognitive load analysis, and advanced visualizations.
 
 ## 🌐 Live Demo
 
@@ -10,7 +10,7 @@ The web version runs entirely in your browser - no installation needed!
 
 ## Features
 
-### 📊 Visualization Types
+### 📊 Core Visualization Types
 
 1. **Gaze Heatmap** - Shows intensity of fixations across the screen
 2. **Scan Path** - Displays gaze trajectory with temporal gradient
@@ -20,13 +20,80 @@ The web version runs entirely in your browser - no installation needed!
 6. **Attention Zones** - Identifies high-density areas with contours
 7. **Density Contours** - Statistical confidence regions for gaze patterns
 
-### 📈 Analysis Capabilities
+### 🤖 AI-Powered Pattern Recognition
 
-- Statistical summaries (mean, median, std deviation)
-- Spatial coverage analysis
-- Temporal pattern detection
-- Confidence ellipses (68% and 95%)
-- Comprehensive text reports
+Automatically detect and classify viewing behaviors:
+- **Reading Detection** - Identifies left-to-right reading patterns with return sweeps
+- **Expertise Classification** - Classifies viewers as novice/intermediate/expert based on path efficiency
+- **AOI Detection** - Automatically finds Areas of Interest using DBSCAN clustering
+- **Confusion Indicators** - Detects signs of cognitive difficulty (revisits, erratic movements)
+- **Narrative Insights** - Generates human-readable analysis of viewing behavior
+
+```python
+from pattern_recognition import GazePatternRecognizer
+
+recognizer = GazePatternRecognizer(data)
+behavior = recognizer.detect_reading_behavior()
+expertise = recognizer.classify_expertise_level()
+insights = recognizer.get_narrative_insights()
+```
+
+### 📊 Comparative Analysis
+
+Rigorous statistical comparison of multiple sessions:
+- **Two-Sample Comparison** - T-tests, KS tests, Hausdorff distance
+- **Group Analysis** - ANOVA across multiple sessions
+- **A/B Testing** - Effect size calculations (Cohen's d)
+- **Consistency Scoring** - Measure pattern reproducibility
+- **Outlier Detection** - IQR and Z-score based anomaly detection
+
+```python
+from comparative_analysis import ComparativeAnalyzer
+
+analyzer = ComparativeAnalyzer()
+results = analyzer.compare_two_sessions(session1, session2)
+group_results = analyzer.group_analysis([s1, s2, s3, s4])
+ab_test = analyzer.ab_testing(control_group, treatment_group)
+```
+
+### 🧠 Cognitive Load Analysis
+
+Measure mental effort and task difficulty:
+- **Spatial Entropy** - Attention distribution across screen
+- **Fixation Rate Analysis** - Processing speed indicators
+- **Saccade Metrics** - Visual search efficiency
+- **Ambient/Focal Attention** - Attention mode classification
+- **Gaze Transition Entropy** - Pattern predictability
+- **Task Difficulty Score** - Overall cognitive load composite
+
+```python
+from cognitive_load import CognitiveLoadAnalyzer
+
+analyzer = CognitiveLoadAnalyzer(data)
+entropy = analyzer.calculate_spatial_entropy()
+difficulty = analyzer.measure_task_difficulty()
+report = analyzer.generate_cognitive_load_report()
+```
+
+### 🎨 Advanced Visualizations
+
+Publication-ready unique visualizations:
+- **Sankey Diagrams** - Gaze flow between screen regions
+- **Network Graphs** - AOI relationships and transitions
+- **4D Visualization** - X, Y, Time, Duration in single plot
+- **Animated Scan Paths** - Replay viewing behavior over time
+- **Velocity Heatmaps** - Eye movement speed across regions
+- **Comparison Dashboards** - Side-by-side multi-session analysis
+
+```python
+from advanced_visualizations import AdvancedVisualizer
+
+viz = AdvancedVisualizer(data)
+fig1 = viz.create_sankey_diagram()
+fig2 = viz.create_network_graph()
+fig3 = viz.create_4d_visualization()
+viz.export_interactive_html('report.html')
+```
 
 ## Installation
 
@@ -46,6 +113,8 @@ This will install:
 - matplotlib - Core visualization
 - seaborn - Statistical plotting
 - scipy - Advanced statistics and signal processing
+- scikit-learn - Machine learning algorithms
+- networkx - Graph analysis
 
 ## Quick Start
 
