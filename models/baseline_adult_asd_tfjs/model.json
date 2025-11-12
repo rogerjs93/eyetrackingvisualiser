@@ -1,8 +1,9 @@
 {
   "format": "layers-model",
-  "generatedBy": "TensorFlow.js v4.x Converter",
-  "convertedBy": "TensorFlow.js Converter v4.22.0",
+  "generatedBy": "keras v2.20.0",
+  "convertedBy": "TensorFlow.js Converter",
   "modelTopology": {
+    "module": "keras",
     "class_name": "Sequential",
     "config": {
       "name": "sequential_1",
@@ -21,10 +22,8 @@
           "class_name": "InputLayer",
           "config": {
             "dtype": "float32",
-            "sparse": false,
-            "ragged": false,
-            "name": "input",
-            "batchInputShape": [
+            "name": "input_layer_1",
+            "batch_input_shape": [
               null,
               28
             ]
@@ -589,17 +588,23 @@
         28
       ]
     },
-    "keras_version": "3.12.0",
-    "backend": "tensorflow"
+    "registered_name": null,
+    "build_config": {
+      "input_shape": [
+        null,
+        28
+      ]
+    },
+    "compile_config": {}
   },
   "weightsManifest": [
     {
       "paths": [
-        "weights.bin"
+        "group1-shard1of1.bin"
       ],
       "weights": [
         {
-          "name": "dense/weight_0",
+          "name": "dense/kernel",
           "shape": [
             28,
             32
@@ -607,42 +612,42 @@
           "dtype": "float32"
         },
         {
-          "name": "dense/weight_1",
+          "name": "dense/bias",
           "shape": [
             32
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization/weight_0",
+          "name": "batch_normalization/gamma",
           "shape": [
             32
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization/weight_1",
+          "name": "batch_normalization/beta",
           "shape": [
             32
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization/weight_2",
+          "name": "batch_normalization/moving_mean",
           "shape": [
             32
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization/weight_3",
+          "name": "batch_normalization/moving_variance",
           "shape": [
             32
           ],
           "dtype": "float32"
         },
         {
-          "name": "dense_1/weight_0",
+          "name": "dense_1/kernel",
           "shape": [
             32,
             48
@@ -650,42 +655,42 @@
           "dtype": "float32"
         },
         {
-          "name": "dense_1/weight_1",
+          "name": "dense_1/bias",
           "shape": [
             48
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization_1/weight_0",
+          "name": "batch_normalization_1/gamma",
           "shape": [
             48
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization_1/weight_1",
+          "name": "batch_normalization_1/beta",
           "shape": [
             48
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization_1/weight_2",
+          "name": "batch_normalization_1/moving_mean",
           "shape": [
             48
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization_1/weight_3",
+          "name": "batch_normalization_1/moving_variance",
           "shape": [
             48
           ],
           "dtype": "float32"
         },
         {
-          "name": "latent/weight_0",
+          "name": "latent/kernel",
           "shape": [
             48,
             24
@@ -693,14 +698,14 @@
           "dtype": "float32"
         },
         {
-          "name": "latent/weight_1",
+          "name": "latent/bias",
           "shape": [
             24
           ],
           "dtype": "float32"
         },
         {
-          "name": "dense_2/weight_0",
+          "name": "dense_2/kernel",
           "shape": [
             24,
             48
@@ -708,42 +713,42 @@
           "dtype": "float32"
         },
         {
-          "name": "dense_2/weight_1",
+          "name": "dense_2/bias",
           "shape": [
             48
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization_2/weight_0",
+          "name": "batch_normalization_2/gamma",
           "shape": [
             48
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization_2/weight_1",
+          "name": "batch_normalization_2/beta",
           "shape": [
             48
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization_2/weight_2",
+          "name": "batch_normalization_2/moving_mean",
           "shape": [
             48
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization_2/weight_3",
+          "name": "batch_normalization_2/moving_variance",
           "shape": [
             48
           ],
           "dtype": "float32"
         },
         {
-          "name": "dense_3/weight_0",
+          "name": "dense_3/kernel",
           "shape": [
             48,
             32
@@ -751,42 +756,42 @@
           "dtype": "float32"
         },
         {
-          "name": "dense_3/weight_1",
+          "name": "dense_3/bias",
           "shape": [
             32
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization_3/weight_0",
+          "name": "batch_normalization_3/gamma",
           "shape": [
             32
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization_3/weight_1",
+          "name": "batch_normalization_3/beta",
           "shape": [
             32
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization_3/weight_2",
+          "name": "batch_normalization_3/moving_mean",
           "shape": [
             32
           ],
           "dtype": "float32"
         },
         {
-          "name": "batch_normalization_3/weight_3",
+          "name": "batch_normalization_3/moving_variance",
           "shape": [
             32
           ],
           "dtype": "float32"
         },
         {
-          "name": "dense_4/weight_0",
+          "name": "dense_4/kernel",
           "shape": [
             32,
             28
@@ -794,7 +799,7 @@
           "dtype": "float32"
         },
         {
-          "name": "dense_4/weight_1",
+          "name": "dense_4/bias",
           "shape": [
             28
           ],

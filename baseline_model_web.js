@@ -60,15 +60,22 @@ class BaselineModelWeb {
      * Extract 28 features from eye-tracking data
      */
     extractFeatures(data) {
+        // Helper to get min/max without stack overflow
+        const safeMin = (arr) => arr.reduce((min, val) => val < min ? val : min, Infinity);
+        const safeMax = (arr) => arr.reduce((max, val) => val > max ? val : max, -Infinity);
+        
+        const xValues = data.map(d => d.x);
+        const yValues = data.map(d => d.y);
+        
         const stats = {
-            x_mean: this.mean(data.map(d => d.x)),
-            x_std: this.std(data.map(d => d.x)),
-            x_min: Math.min(...data.map(d => d.x)),
-            x_max: Math.max(...data.map(d => d.x)),
-            y_mean: this.mean(data.map(d => d.y)),
-            y_std: this.std(data.map(d => d.y)),
-            y_min: Math.min(...data.map(d => d.y)),
-            y_max: Math.max(...data.map(d => d.y)),
+            x_mean: this.mean(xValues),
+            x_std: this.std(xValues),
+            x_min: safeMin(xValues),
+            x_max: safeMax(xValues),
+            y_mean: this.mean(yValues),
+            y_std: this.std(yValues),
+            y_min: safeMin(yValues),
+            y_max: safeMax(yValues),
             fixation_duration_mean: this.mean(data.map(d => d.fixation_duration || 200)),
             fixation_duration_std: this.std(data.map(d => d.fixation_duration || 200)),
             fixation_count: data.length,
@@ -102,8 +109,10 @@ class BaselineModelWeb {
             throw new Error('Scaler not loaded');
         }
 
+        // Fixed: scaler.json has 'std' not 'scale' (v2.0)
         const transformed = features.map((value, i) => {
-            return (value - this.scaler.mean[i]) / this.scaler.scale[i];
+            const std = this.scaler.std || this.scaler.scale;
+            return (value - this.scaler.mean[i]) / std[i];
         });
 
         return transformed;
@@ -137,14 +146,6 @@ class BaselineModelWeb {
             }
             const reconstructionError = totalError / scaledFeatures.length;
 
-            // Calculate Z-scores relative to baseline
-            const zScores = features.map((value, i) => {
-                const featureName = Object.keys(this.baselineStats)[i];
-                const baselineMean = this.baselineStats[featureName].mean;
-                const baselineStd = this.baselineStats[featureName].std;
-                return (value - baselineMean) / baselineStd;
-            });
-
             // Calculate similarity score (0-100) using age-specific threshold
             const baselineMeanError = this.threshold; // Use configurable threshold
             const errorDiff = Math.abs(reconstructionError - baselineMeanError);
@@ -158,7 +159,6 @@ class BaselineModelWeb {
                 reconstructionError,
                 similarityScore: similarityScore.toFixed(1),
                 interpretation: this.interpretScore(similarityScore),
-                zScores,
                 features,
                 scaledFeatures
             };

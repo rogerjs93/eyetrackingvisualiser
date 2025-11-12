@@ -16,7 +16,15 @@ from sklearn.decomposition import PCA
 from sklearn.feature_selection import SelectKBest, mutual_info_regression
 import tensorflow as tf
 from tensorflow import keras
-import keras_tuner as kt
+
+# Optional: keras_tuner for hyperparameter optimization
+try:
+    import keras_tuner as kt
+    KERAS_TUNER_AVAILABLE = True
+except ImportError:
+    KERAS_TUNER_AVAILABLE = False
+    print("⚠️  keras_tuner not installed. Hyperparameter optimization will be skipped.")
+    print("   Install with: pip install keras-tuner")
 
 class AdvancedBaselineTrainer:
     """
@@ -40,24 +48,23 @@ class AdvancedBaselineTrainer:
         
         # Import from existing baseline_model_builder
         from baseline_model_builder import BaselineModelBuilder
-        builder = BaselineModelBuilder(str(self.data_dir))
+        builder = BaselineModelBuilder()
         
         print("\n1️⃣ Loading participants...")
-        data_files, metadata = builder.load_autism_data()
+        # Note: load_all_participants() already extracts features internally
+        features, metadata = builder.load_all_participants()
         
-        print(f"\n2️⃣ Extracting features from {len(data_files)} participants...")
-        features = []
-        for csv_file, meta in zip(data_files, metadata):
-            feature_vector, _ = builder.extract_features(csv_file)
-            features.append(feature_vector)
-        
-        self.features = np.array(features)
-        print(f"  ✅ Features shape: {self.features.shape}")
+        self.features = features
+        self.metadata = metadata
+        print(f"\n✅ Feature matrix shape: {self.features.shape}")
+        print(f"   Features per sample: {self.features.shape[1]}")
+        print(f"   Total samples: {self.features.shape[0]}")
         
         # Normalize
         self.features_scaled = self.scaler.fit_transform(self.features)
         
         return self.features_scaled
+
     
     # ========================
     # Approach 1: Optimized Autoencoder
@@ -107,6 +114,11 @@ class AdvancedBaselineTrainer:
         print("\n" + "=" * 70)
         print("Approach 1: Optimized Autoencoder with Hyperparameter Tuning")
         print("=" * 70)
+        
+        if not KERAS_TUNER_AVAILABLE:
+            print("❌ Skipping - keras_tuner not installed")
+            print("   Install with: pip install keras-tuner")
+            return None, None
         
         # Keras Tuner
         tuner = kt.BayesianOptimization(
@@ -416,10 +428,13 @@ class AdvancedBaselineTrainer:
         self.load_and_prepare_data()
         
         # Train all models
-        try:
-            self.train_optimized_autoencoder()
-        except Exception as e:
-            print(f"⚠️ Optimized autoencoder failed: {e}")
+        if KERAS_TUNER_AVAILABLE:
+            try:
+                self.train_optimized_autoencoder()
+            except Exception as e:
+                print(f"⚠️ Optimized autoencoder failed: {e}")
+        else:
+            print("\n⚠️ Skipping optimized autoencoder (keras-tuner not installed)")
         
         try:
             self.train_ensemble_autoencoder(n_models=5)

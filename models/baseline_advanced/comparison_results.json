@@ -1,0 +1,55 @@
+{
+  "optimized_autoencoder": {
+    "val_mae": 0.4068923592567444,
+    "hyperparameters": {
+      "encoder_1": 32,
+      "encoder_2": 48,
+      "latent": 24,
+      "dropout": 0.4,
+      "lr": 0.006519021789468452
+    }
+  },
+  "ensemble_autoencoder": {
+    "individual_maes": [
+      0.6181761622428894,
+      0.47435760498046875,
+      0.6128567457199097,
+      0.6000495553016663,
+      0.6118927597999573
+    ],
+    "ensemble_mae": 0.560170893224909
+  },
+  "isolation_forest": {
+    "mean_score": -0.47382801040482475,
+    "std_score": 0.0676709857165325
+  },
+  "one_class_svm": {
+    "mean_score": 0.017044885542402327,
+    "std_score": 0.024806346431563348
+  },
+  "feature_selection": {
+    "selected_indices": [
+      1,
+      2,
+      3,
+      6,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      21,
+      22,
+      25,
+      26,
+      27
+    ],
+    "val_mae": 0.5631296038627625
+  }
+}
