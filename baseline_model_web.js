@@ -9,6 +9,11 @@ class BaselineModelWeb {
         this.scaler = null;
         this.baselineStats = null;
         this.isModelLoaded = false;
+        
+        // Default paths (can be overridden for different age groups)
+        this.modelPath = 'models/baseline_children_asd/optimized_autoencoder.keras';
+        this.scalerPath = 'models/baseline_children_asd/scaler.json';
+        this.threshold = 0.4069; // Default to children threshold
     }
 
     /**
@@ -25,31 +30,22 @@ class BaselineModelWeb {
             
             console.log(`📍 Base URL: ${baseUrl || 'relative path'}`);
             
-            // Load the model with proper path
-            const modelPath = `${baseUrl}models/baseline_tfjs/model.json`;
-            console.log(`📂 Loading model from: ${modelPath}`);
-            this.model = await tf.loadLayersModel(modelPath);
+            // Load the model with configurable path
+            const fullModelPath = `${baseUrl}${this.modelPath}`;
+            console.log(`📂 Loading model from: ${fullModelPath}`);
+            this.model = await tf.loadLayersModel(fullModelPath);
             console.log('✅ Model loaded successfully');
             
             // Load scaler parameters (mean and scale from StandardScaler)
-            const scalerPath = `${baseUrl}models/baseline/scaler.json`;
-            console.log(`📂 Loading scaler from: ${scalerPath}`);
-            const scalerResponse = await fetch(scalerPath);
+            const fullScalerPath = `${baseUrl}${this.scalerPath}`;
+            console.log(`📂 Loading scaler from: ${fullScalerPath}`);
+            const scalerResponse = await fetch(fullScalerPath);
             if (!scalerResponse.ok) {
                 throw new Error(`Failed to load scaler: ${scalerResponse.status} ${scalerResponse.statusText}`);
             }
             this.scaler = await scalerResponse.json();
             console.log('✅ Scaler parameters loaded');
-            
-            // Load baseline statistics
-            const statsPath = `${baseUrl}models/baseline/baseline_statistics.json`;
-            console.log(`📂 Loading statistics from: ${statsPath}`);
-            const statsResponse = await fetch(statsPath);
-            if (!statsResponse.ok) {
-                throw new Error(`Failed to load statistics: ${statsResponse.status} ${statsResponse.statusText}`);
-            }
-            this.baselineStats = await statsResponse.json();
-            console.log('✅ Baseline statistics loaded');
+            console.log(`🎯 Using threshold: ${this.threshold}`);
             
             this.isModelLoaded = true;
             return true;
@@ -149,8 +145,8 @@ class BaselineModelWeb {
                 return (value - baselineMean) / baselineStd;
             });
 
-            // Calculate similarity score (0-100)
-            const baselineMeanError = 0.72; // From training
+            // Calculate similarity score (0-100) using age-specific threshold
+            const baselineMeanError = this.threshold; // Use configurable threshold
             const errorDiff = Math.abs(reconstructionError - baselineMeanError);
             const similarityScore = Math.max(0, 100 * (1 - errorDiff / baselineMeanError));
 

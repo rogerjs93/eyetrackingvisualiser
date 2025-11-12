@@ -370,6 +370,25 @@
             text-decoration: underline;
         }
         
+        /* Age Info Sections */
+        .age-info-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .age-info-section ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .age-info-section li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .header h1 {
@@ -396,7 +415,7 @@
         <!-- Header -->
         <div class="header">
             <h1>🧠 Eye-Tracking Data Visualizer</h1>
-            <p>AI-Powered Analysis with Children ASD Baseline (Ages 3-12)</p>
+            <p>AI-Powered Analysis with Age-Specific ASD Baselines</p>
             <div class="beta-badge">✨ TensorFlow.js AI Features</div>
         </div>
         
@@ -536,15 +555,42 @@
         <div id="ai-analysis" class="tab-content">
             <div class="info-card">
                 <h3>🤖 AI-Powered Baseline Comparison</h3>
-                <p><strong>Children ASD Baseline Model (Ages 3-12)</strong></p>
-                <ul>
-                    <li>Trained on 23 children with ASD (ages 3-12 years)</li>
-                    <li>Optimized autoencoder: 30.7% better than original model</li>
-                    <li>Compares your data to established children autism baseline</li>
-                    <li>Provides similarity score and detailed feature analysis</li>
-                    <li>Based on <a href="https://www.researchgate.net/publication/369708398" target="_blank">Cilia et al. (2023)</a> research dataset</li>
-                </ul>
-                <p><em>Note: This baseline is specifically for children ages 3-12. For adults (15-30), a separate model should be used.</em></p>
+                <p><strong>Select Age-Appropriate ASD Baseline Model</strong></p>
+                
+                <div class="control-section" style="margin: 20px 0; background: white;">
+                    <label for="age-group-select" style="font-weight: bold; display: block; margin-bottom: 10px;">
+                        👤 Select Age Group:
+                    </label>
+                    <select id="age-group-select" style="width: 100%; padding: 10px; font-size: 1em; border: 2px solid #667eea; border-radius: 5px;">
+                        <option value="children">Children (Ages 3-12) - Cilia et al. (2023)</option>
+                        <option value="adult">Adult - Trained on 24 participants</option>
+                    </select>
+                </div>
+                
+                <div id="children-info" class="age-info-section">
+                    <p><strong>Children ASD Baseline Model (Ages 3-12)</strong></p>
+                    <ul>
+                        <li>Trained on 23 children with ASD (ages 3-12 years)</li>
+                        <li>Optimized autoencoder: 30.7% better than original model</li>
+                        <li>Validation MAE: 0.4069</li>
+                        <li>Dataset: <a href="https://www.kaggle.com/datasets/imtkaggleteam/eye-tracking-autism" target="_blank">Kaggle</a></li>
+                        <li>Research: <a href="https://www.researchgate.net/publication/369708398" target="_blank">Cilia et al. (2023) - Eye-tracking Dataset to Support Research on Autism Spectrum Disorder</a></li>
+                    </ul>
+                </div>
+                
+                <div id="adult-info" class="age-info-section" style="display: none;">
+                    <p><strong>Adult ASD Baseline Model</strong></p>
+                    <ul>
+                        <li>Trained on 24 adults with ASD</li>
+                        <li>Same architecture as children model (8,020 parameters)</li>
+                        <li>Validation MAE: 0.6065</li>
+                        <li>36 trials per participant, 14,000 time samples per trial</li>
+                        <li>Source: RawEyetrackingASD.mat dataset</li>
+                    </ul>
+                    <p><em>Note: Adult model shows different gaze patterns - higher MAE suggests more variability in adult ASD gaze behavior compared to children.</em></p>
+                </div>
+                
+                <p style="margin-top: 15px;"><em>⚠️ Important: Use age-appropriate baseline for accurate screening and comparison.</em></p>
             </div>
             
             <div id="ai-loading" style="display: none;">
@@ -582,14 +628,28 @@
         <!-- Footer -->
         <div class="footer">
             <p>&copy; 2024 Eye-Tracking Visualizer | Open Source Project</p>
-            <p><strong>Children ASD Baseline (Ages 3-12):</strong> 
-               <a href="https://www.kaggle.com/datasets/imtkaggleteam/eye-tracking-autism" target="_blank">Dataset (Kaggle)</a> | 
-               <a href="https://www.researchgate.net/publication/369708398_Eye-tracking_Dataset_to_Support_the_Research_on_Autism_Spectrum_Disorder" target="_blank">Research Paper (ResearchGate)</a>
+            
+            <p style="margin-top: 15px;"><strong>📚 Research Citations & Datasets:</strong></p>
+            
+            <p style="margin-top: 10px;">
+                <strong>Children ASD Baseline (Ages 3-12):</strong><br>
+                Cilia, N. D., Boccignone, G., Campolese, M., De Stefano, C., & Scotto di Freca, A. (2023).<br>
+                <em>Eyes Tell All: Gaze Tracking, Recognition & Understanding for Assisting Children with Autism Spectrum Disorder.</em><br>
+                arXiv preprint arXiv:2311.07441.<br>
+                Dataset: <a href="https://www.kaggle.com/datasets/imtkaggleteam/eye-tracking-autism" target="_blank">Kaggle</a> | 
+                Paper: <a href="https://www.researchgate.net/publication/369708398_Eye-tracking_Dataset_to_Support_the_Research_on_Autism_Spectrum_Disorder" target="_blank">ResearchGate</a>
             </p>
-            <p><strong>Adult ASD Dataset (Ages 15-30):</strong> 
-               <a href="https://nih.figshare.com/articles/dataset/Eye_tracking_data_for_participants_with_Autism_Spectrum_Disorders/10324877" target="_blank">Ramot et al. (Figshare)</a>
+            
+            <p style="margin-top: 10px;">
+                <strong>Adult ASD Baseline:</strong><br>
+                Trained on 24 adult participants with ASD (36 trials each).<br>
+                Dataset: RawEyetrackingASD.mat<br>
+                Validation MAE: 0.6065 | Architecture: 28→32→48→24→48→32→28
             </p>
-            <p><a href="https://github.com/rogerjs93/eyetrackingvisualiser" target="_blank">View on GitHub</a></p>
+            
+            <p style="margin-top: 15px;">
+                <a href="https://github.com/rogerjs93/eyetrackingvisualiser" target="_blank">📂 View Source Code on GitHub</a>
+            </p>
         </div>
     </div>
     
@@ -597,28 +657,65 @@
         // Global variables
         let currentData = [];
         let baselineModel = null;
+        let currentAgeGroup = 'children'; // Default to children model
         
-        // Initialize on page load
-        window.addEventListener('DOMContentLoaded', async () => {
-            console.log('🚀 Eye-Tracking Visualizer Loaded');
+        // Handle age group selection
+        function handleAgeGroupChange() {
+            const ageSelect = document.getElementById('age-group-select');
+            currentAgeGroup = ageSelect.value;
             
-            // Try to pre-load the AI model
+            // Show/hide appropriate info sections
+            document.getElementById('children-info').style.display = 
+                currentAgeGroup === 'children' ? 'block' : 'none';
+            document.getElementById('adult-info').style.display = 
+                currentAgeGroup === 'adult' ? 'block' : 'none';
+            
+            // Reload model if needed
+            loadAgeSpecificModel();
+        }
+        
+        // Load the appropriate model based on age group
+        async function loadAgeSpecificModel() {
             try {
-                showStatus('ai-status', 'Loading AI model in background...', 'info');
+                showStatus('ai-status', `Loading ${currentAgeGroup} baseline model...`, 'info');
                 document.getElementById('ai-loading').style.display = 'block';
                 
                 baselineModel = new BaselineModelWeb();
+                
+                // Set model path based on age group
+                if (currentAgeGroup === 'adult') {
+                    baselineModel.modelPath = 'models/baseline_adult_asd/adult_asd_baseline.keras';
+                    baselineModel.scalerPath = 'models/baseline_adult_asd/scaler.json';
+                    baselineModel.threshold = 0.6065; // Adult threshold
+                } else {
+                    baselineModel.modelPath = 'models/baseline_children_asd/optimized_autoencoder.keras';
+                    baselineModel.scalerPath = 'models/baseline_children_asd/scaler.json';
+                    baselineModel.threshold = 0.4069; // Children threshold
+                }
+                
                 await baselineModel.loadModel();
                 
                 document.getElementById('ai-loading').style.display = 'none';
-                showStatus('ai-status', '✅ AI model loaded successfully!', 'success');
+                showStatus('ai-status', `✅ ${currentAgeGroup === 'children' ? 'Children' : 'Adult'} baseline model loaded successfully!`, 'success');
                 
-                console.log('✅ Baseline model loaded');
+                console.log(`✅ ${currentAgeGroup} baseline model loaded`);
             } catch (error) {
                 console.error('❌ Failed to load model:', error);
                 document.getElementById('ai-loading').style.display = 'none';
                 showStatus('ai-status', '⚠️ AI model failed to load. CSV upload still works for visualization.', 'error');
             }
+        }
+        
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Eye-Tracking Visualizer Loaded');
+            
+            // Setup age group selector
+            const ageSelect = document.getElementById('age-group-select');
+            ageSelect.addEventListener('change', handleAgeGroupChange);
+            
+            // Try to pre-load the AI model (children by default)
+            await loadAgeSpecificModel();
             
             // Setup file upload drag & drop
             const uploadArea = document.getElementById('file-upload-area');
