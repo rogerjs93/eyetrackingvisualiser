@@ -396,7 +396,7 @@
         <!-- Header -->
         <div class="header">
             <h1>🧠 Eye-Tracking Data Visualizer</h1>
-            <p>AI-Powered Analysis with Autism Research Dataset Baseline</p>
+            <p>AI-Powered Analysis with Children ASD Baseline (Ages 3-12)</p>
             <div class="beta-badge">✨ TensorFlow.js AI Features</div>
         </div>
         
@@ -536,12 +536,15 @@
         <div id="ai-analysis" class="tab-content">
             <div class="info-card">
                 <h3>🤖 AI-Powered Baseline Comparison</h3>
+                <p><strong>Children ASD Baseline Model (Ages 3-12)</strong></p>
                 <ul>
-                    <li>Trained on 23 children with autism (ages 2.7-11.7 years)</li>
-                    <li>Uses deep learning autoencoder for pattern recognition</li>
-                    <li>Compares your data to established autism research baseline</li>
+                    <li>Trained on 23 children with ASD (ages 3-12 years)</li>
+                    <li>Optimized autoencoder: 30.7% better than original model</li>
+                    <li>Compares your data to established children autism baseline</li>
                     <li>Provides similarity score and detailed feature analysis</li>
+                    <li>Based on <a href="https://www.researchgate.net/publication/369708398" target="_blank">Cilia et al. (2023)</a> research dataset</li>
                 </ul>
+                <p><em>Note: This baseline is specifically for children ages 3-12. For adults (15-30), a separate model should be used.</em></p>
             </div>
             
             <div id="ai-loading" style="display: none;">
@@ -579,7 +582,13 @@
         <!-- Footer -->
         <div class="footer">
             <p>&copy; 2024 Eye-Tracking Visualizer | Open Source Project</p>
-            <p>Dataset: <a href="https://www.kaggle.com/datasets/imtkaggleteam/eye-tracking-autism" target="_blank">Eye-Tracking Autism Dataset (Kaggle)</a></p>
+            <p><strong>Children ASD Baseline (Ages 3-12):</strong> 
+               <a href="https://www.kaggle.com/datasets/imtkaggleteam/eye-tracking-autism" target="_blank">Dataset (Kaggle)</a> | 
+               <a href="https://www.researchgate.net/publication/369708398_Eye-tracking_Dataset_to_Support_the_Research_on_Autism_Spectrum_Disorder" target="_blank">Research Paper (ResearchGate)</a>
+            </p>
+            <p><strong>Adult ASD Dataset (Ages 15-30):</strong> 
+               <a href="https://nih.figshare.com/articles/dataset/Eye_tracking_data_for_participants_with_Autism_Spectrum_Disorders/10324877" target="_blank">Ramot et al. (Figshare)</a>
+            </p>
             <p><a href="https://github.com/rogerjs93/eyetrackingvisualiser" target="_blank">View on GitHub</a></p>
         </div>
     </div>
