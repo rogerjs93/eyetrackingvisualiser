@@ -684,12 +684,12 @@
                 
                 // Set model path based on age group
                 if (currentAgeGroup === 'adult') {
-                    baselineModel.modelPath = 'models/baseline_adult_asd/adult_asd_baseline.keras';
-                    baselineModel.scalerPath = 'models/baseline_adult_asd/scaler.json';
+                    baselineModel.modelPath = 'models/baseline_adult_asd_tfjs/model.json';
+                    baselineModel.scalerPath = 'models/baseline_adult_asd_tfjs/scaler.json';
                     baselineModel.threshold = 0.6065; // Adult threshold
                 } else {
-                    baselineModel.modelPath = 'models/baseline_children_asd/optimized_autoencoder.keras';
-                    baselineModel.scalerPath = 'models/baseline_children_asd/scaler.json';
+                    baselineModel.modelPath = 'models/baseline_children_asd_tfjs/model.json';
+                    baselineModel.scalerPath = 'models/baseline_children_asd_tfjs/scaler.json';
                     baselineModel.threshold = 0.4069; // Children threshold
                 }
                 

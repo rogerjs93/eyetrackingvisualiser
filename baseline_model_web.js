@@ -11,8 +11,8 @@ class BaselineModelWeb {
         this.isModelLoaded = false;
         
         // Default paths (can be overridden for different age groups)
-        this.modelPath = 'models/baseline_children_asd/optimized_autoencoder.keras';
-        this.scalerPath = 'models/baseline_children_asd/scaler.json';
+        this.modelPath = 'models/baseline_children_asd_tfjs/model.json';
+        this.scalerPath = 'models/baseline_children_asd_tfjs/scaler.json';
         this.threshold = 0.4069; // Default to children threshold
     }
 
