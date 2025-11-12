@@ -1,16 +1,48 @@
 # Eye-Tracking Data Visualizer
 
-A comprehensive research-grade tool for visualizing and analyzing eye-tracking data with AI-powered pattern recognition, statistical comparison, cognitive load analysis, and advanced visualizations.
+A comprehensive research-grade tool for visualizing and analyzing eye-tracking data with AI-powered pattern recognition, statistical comparison, cognitive load analysis, and autism baseline model comparison.
 
-## 🌐 Live Demo
+## 🚀 Quick Start
 
-**[Try it online here!](https://rogerjs93.github.io/eyetrackingvisualiser/)**
+### Option 1: Web Demo (Limited Features)
+**[Try it online here!](https://rogerjs93.github.io/eyetrackingvisualiser/)**  
+Browser-based demo with synthetic data generation and basic visualizations.
 
-The web version runs entirely in your browser - no installation needed!
+### Option 2: Full Python Version (Recommended)
+```bash
+# Clone repository
+git clone https://github.com/rogerjs93/eyetrackingvisualiser.git
+cd eyetrackingvisualiser
 
-## Features
+# Install dependencies
+pip install -r requirements.txt
 
-### 📊 Core Visualization Types
+# Run interactive dashboard
+python interactive_dashboard.py
+```
+Then open: **http://localhost:8050**
+
+## ✨ Features
+
+### 🌐 Web Version (GitHub Pages)
+- ✅ Synthetic data generation with 6 pattern types
+- ✅ Core visualizations (heatmap, scan path, distributions)
+- ✅ Real-time interactive plots with Plotly
+- ❌ No real dataset support
+- ❌ No ML/AI features
+- ❌ No baseline model comparison
+
+### 🐍 Python Version (Full Features)
+All web features PLUS:
+- ✅ **Real Autism Dataset**: 25 ASD participants (ages 2.7-11.7 years)
+- ✅ **AI Baseline Model**: TensorFlow-trained autism gaze pattern model
+- ✅ **Similarity Scoring**: Compare new data against baseline (0-100 score)
+- ✅ **Pattern Recognition**: ML-powered reading, expertise, confusion detection
+- ✅ **Cognitive Load Analysis**: Entropy, fixation rates, task difficulty
+- ✅ **Advanced Visualizations**: Sankey diagrams, network graphs, 4D plots
+- ✅ **Methodology Explanations**: Built-in documentation for all metrics
+
+## 📊 Core Visualization Types
 
 1. **Gaze Heatmap** - Shows intensity of fixations across the screen
 2. **Scan Path** - Displays gaze trajectory with temporal gradient
@@ -20,7 +52,36 @@ The web version runs entirely in your browser - no installation needed!
 6. **Attention Zones** - Identifies high-density areas with contours
 7. **Density Contours** - Statistical confidence regions for gaze patterns
 
-### 🤖 AI-Powered Pattern Recognition
+## 🧠 Autism Baseline Model (Python Only)
+
+**NEW**: Compare eye-tracking data against a trained baseline model!
+
+### What It Does
+- Trained on 23 ASD participants using TensorFlow autoencoder
+- Extracts 28 features (spatial, temporal, movement, distribution)
+- Provides similarity scores (0-100) and deviation analysis
+- Identifies which features deviate most from baseline
+- Generates detailed comparison reports
+
+### Usage
+```python
+from baseline_comparator import BaselineComparator
+
+# Load baseline model
+comparator = BaselineComparator(model_dir='models/baseline')
+
+# Compare your data
+results = comparator.compare_to_baseline(your_data)
+print(f"Similarity: {results['similarity_score']}/100")
+print(f"Deviation: {results['deviation_level']}")
+
+# Generate report
+comparator.generate_comparison_report(your_data, 'report.md')
+```
+
+See [`BASELINE_MODEL_SUMMARY.md`](BASELINE_MODEL_SUMMARY.md) for details.
+
+## 🤖 AI-Powered Pattern Recognition (Python Only)
 
 Automatically detect and classify viewing behaviors:
 - **Reading Detection** - Identifies left-to-right reading patterns with return sweeps

@@ -45,6 +45,30 @@
             opacity: 0.9;
         }
         
+        .feature-banner {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px;
+            color: #856404;
+        }
+        
+        .feature-banner h3 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+        
+        .feature-banner ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .feature-banner a {
+            color: #0056b3;
+            font-weight: bold;
+        }
+        
         .controls {
             padding: 30px;
             background: #f8f9fa;
@@ -204,6 +228,28 @@
         <div class="header">
             <h1>🎯 Eye-Tracking Data Visualizer</h1>
             <p>Interactive Analysis of Eye Movement Patterns</p>
+        </div>
+        
+        <!-- Feature Banner -->
+        <div class="feature-banner">
+            <h3>🆕 New Features Available in Python Version!</h3>
+            <p><strong>This web demo shows synthetic data only.</strong> For advanced features, run the Python dashboard locally:</p>
+            <ul>
+                <li>🧩 <strong>Real Autism Dataset</strong>: Analyze 25 ASD participants (ages 2.7-11.7 years)</li>
+                <li>🧠 <strong>AI Baseline Model</strong>: Compare new data against trained autism baseline model</li>
+                <li>📊 <strong>Similarity Scoring</strong>: Get 0-100 similarity scores and deviation analysis</li>
+                <li>🤖 <strong>Pattern Recognition</strong>: ML-powered gaze pattern detection</li>
+                <li>🧠 <strong>Cognitive Load Analysis</strong>: Advanced metrics and insights</li>
+            </ul>
+            <p style="margin-top: 15px;">
+                <strong>To use these features:</strong>
+                <code style="background: #fff; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 10px;">
+                    git clone https://github.com/rogerjs93/eyetrackingvisualiser && cd eyetrackingvisualiser && python interactive_dashboard.py
+                </code>
+            </p>
+            <p style="margin-top: 10px;">
+                📚 <a href="https://github.com/rogerjs93/eyetrackingvisualiser" target="_blank">View Full Documentation on GitHub</a>
+            </p>
         </div>
         
         <div class="controls">
