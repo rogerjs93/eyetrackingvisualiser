@@ -44,6 +44,17 @@ def convert_keras_to_tfjs_manual(keras_model_path, output_dir, scaler_json_path)
     # Get Sequential model config
     config = sequential_model.get_config()
     
+    # Fix InputLayer config for TensorFlow.js compatibility
+    for layer in config.get('layers', []):
+        if layer.get('class_name') == 'InputLayer':
+            layer_config = layer.get('config', {})
+            # Convert batch_shape to batchInputShape for TF.js
+            if 'batch_shape' in layer_config:
+                layer_config['batchInputShape'] = layer_config.pop('batch_shape')
+            # Ensure dtype is set
+            if 'dtype' not in layer_config:
+                layer_config['dtype'] = 'float32'
+    
     # Create TF.js model topology
     topology = {
         "class_name": "Sequential",

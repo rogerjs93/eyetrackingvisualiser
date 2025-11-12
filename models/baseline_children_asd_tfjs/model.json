@@ -20,14 +20,14 @@
           "module": "keras.layers",
           "class_name": "InputLayer",
           "config": {
-            "batch_shape": [
-              null,
-              28
-            ],
             "dtype": "float32",
             "sparse": false,
             "ragged": false,
-            "name": "input"
+            "name": "input",
+            "batchInputShape": [
+              null,
+              28
+            ]
           },
           "registered_name": null
         },
