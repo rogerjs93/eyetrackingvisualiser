@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eye-Tracking Data Visualizer</title>
+    <title>Eye-Tracking Data Visualizer - AI-Powered Analysis</title>
+    
+    <!-- External Libraries -->
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="baseline_model_web.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -20,7 +27,7 @@
         }
         
         .container {
-            max-width: 1600px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -28,6 +35,7 @@
             overflow: hidden;
         }
         
+        /* Header Styles */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -38,48 +46,119 @@
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
+            font-weight: 600;
         }
         
         .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-        
-        .feature-banner {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px;
-            color: #856404;
-        }
-        
-        .feature-banner h3 {
-            margin-bottom: 10px;
-            color: #856404;
-        }
-        
-        .feature-banner ul {
-            margin-left: 20px;
+            font-size: 1.1em;
+            opacity: 0.95;
             margin-top: 10px;
         }
         
-        .feature-banner a {
-            color: #0056b3;
-            font-weight: bold;
+        .header .beta-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-top: 10px;
         }
         
-        .controls {
-            padding: 30px;
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
             background: #f8f9fa;
             border-bottom: 2px solid #e9ecef;
         }
         
-        .control-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+        .tab-button {
+            flex: 1;
+            padding: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .tab-button:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: white;
+        }
+        
+        .tab-icon {
+            font-size: 1.3em;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.3s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Info Cards */
+        .info-card {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            border-radius: 8px;
             margin-bottom: 20px;
+        }
+        
+        .info-card h3 {
+            color: #1976D2;
+            margin-bottom: 10px;
+        }
+        
+        .info-card ul {
+            margin-left: 20px;
+            color: #495057;
+        }
+        
+        .info-card li {
+            margin: 5px 0;
+        }
+        
+        /* Controls */
+        .control-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .control-section h3 {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
         }
         
         .control-item {
@@ -88,7 +167,7 @@
         }
         
         .control-item label {
-            font-weight: bold;
+            font-weight: 500;
             margin-bottom: 8px;
             color: #495057;
         }
@@ -98,7 +177,7 @@
             padding: 10px;
             border: 2px solid #dee2e6;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 1em;
             transition: border-color 0.3s;
         }
         
@@ -108,246 +187,777 @@
             border-color: #667eea;
         }
         
-        .generate-btn {
+        /* Buttons */
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: block;
-            margin: 20px auto 0;
         }
         
-        .generate-btn:hover {
+        .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
         
-        .generate-btn:active {
-            transform: translateY(0);
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 30px;
-            background: #fff;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        .btn-secondary {
+            background: #6c757d;
             color: white;
-            padding: 25px;
-            border-radius: 15px;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* File Upload */
+        .file-upload {
+            border: 3px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 40px;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .stat-card h3 {
-            font-size: 1em;
-            margin-bottom: 10px;
-            opacity: 0.9;
-        }
-        
-        .stat-card .value {
-            font-size: 2em;
-            font-weight: bold;
-        }
-        
-        .tabs {
-            display: flex;
-            background: #f8f9fa;
-            padding: 0 30px;
-            border-bottom: 2px solid #dee2e6;
-            overflow-x: auto;
-        }
-        
-        .tab {
-            padding: 15px 30px;
             cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 16px;
-            font-weight: bold;
-            color: #6c757d;
-            border-bottom: 3px solid transparent;
             transition: all 0.3s;
-            white-space: nowrap;
+            background: #f8f9fa;
         }
         
-        .tab:hover {
-            color: #667eea;
+        .file-upload:hover {
+            border-color: #667eea;
+            background: #e7f3ff;
         }
         
-        .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+        .file-upload.drag-over {
+            border-color: #667eea;
+            background: #e7f3ff;
         }
         
-        .tab-content {
+        .file-upload-icon {
+            font-size: 3em;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        
+        .file-upload input[type="file"] {
             display: none;
-            padding: 30px;
         }
         
-        .tab-content.active {
-            display: block;
-        }
-        
-        .plot-container {
-            margin-bottom: 30px;
-            background: white;
+        /* Results Display */
+        .results-container {
+            background: #f8f9fa;
             border-radius: 10px;
             padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
-        .plot-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-            gap: 30px;
+        .result-card h4 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.1em;
         }
         
+        .score-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .interpretation {
+            text-align: center;
+            font-size: 1.2em;
+            color: #495057;
+            padding: 15px;
+            background: #e7f3ff;
+            border-radius: 8px;
+        }
+        
+        /* Plots */
+        .plot-container {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            text-align: center;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+        
+        /* Status Messages */
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .status-message.success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+        
+        .status-message.error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+        
+        .status-message.info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            color: #0c5460;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #343a40;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Responsive */
         @media (max-width: 768px) {
-            .plot-grid {
-                grid-template-columns: 1fr;
-            }
-            
             .header h1 {
                 font-size: 1.8em;
+            }
+            
+            .tab-button {
+                font-size: 0.9em;
+                padding: 15px 10px;
+            }
+            
+            .tab-icon {
+                display: none;
+            }
+            
+            .control-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <h1>🎯 Eye-Tracking Data Visualizer</h1>
-            <p>Interactive Analysis of Eye Movement Patterns</p>
+            <h1>🧠 Eye-Tracking Data Visualizer</h1>
+            <p>AI-Powered Analysis with Autism Research Dataset Baseline</p>
+            <div class="beta-badge">✨ TensorFlow.js AI Features</div>
         </div>
         
-        <!-- Feature Banner -->
-        <div class="feature-banner">
-            <h3>🆕 New Features Available in Python Version!</h3>
-            <p><strong>This web demo shows synthetic data only.</strong> For advanced features, run the Python dashboard locally:</p>
-            <ul>
-                <li>🧩 <strong>Real Autism Dataset</strong>: Analyze 25 ASD participants (ages 2.7-11.7 years)</li>
-                <li>🧠 <strong>AI Baseline Model</strong>: Compare new data against trained autism baseline model</li>
-                <li>📊 <strong>Similarity Scoring</strong>: Get 0-100 similarity scores and deviation analysis</li>
-                <li>🤖 <strong>Pattern Recognition</strong>: ML-powered gaze pattern detection</li>
-                <li>🧠 <strong>Cognitive Load Analysis</strong>: Advanced metrics and insights</li>
-            </ul>
-            <p style="margin-top: 15px;">
-                <strong>To use these features:</strong>
-                <code style="background: #fff; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 10px;">
-                    git clone https://github.com/rogerjs93/eyetrackingvisualiser && cd eyetrackingvisualiser && python interactive_dashboard.py
-                </code>
-            </p>
-            <p style="margin-top: 10px;">
-                📚 <a href="https://github.com/rogerjs93/eyetrackingvisualiser" target="_blank">View Full Documentation on GitHub</a>
-            </p>
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-button active" onclick="switchTab('quick-start')">
+                <span class="tab-icon">⚡</span>
+                <span>Quick Start</span>
+            </button>
+            <button class="tab-button" onclick="switchTab('upload-data')">
+                <span class="tab-icon">📤</span>
+                <span>Upload CSV</span>
+            </button>
+            <button class="tab-button" onclick="switchTab('ai-analysis')">
+                <span class="tab-icon">🤖</span>
+                <span>AI Analysis</span>
+            </button>
         </div>
         
-        <div class="controls">
-            <div class="control-group">
-                <div class="control-item">
-                    <label for="pattern">📊 Data Pattern</label>
-                    <select id="pattern">
-                        <option value="natural">🔍 Natural Viewing</option>
-                        <option value="reading">📖 Reading Pattern</option>
-                        <option value="centered">🎯 Center-Focused</option>
-                        <option value="scattered">🎲 Scattered Random</option>
-                        <option value="f_pattern">📱 F-Pattern (Web)</option>
-                        <option value="z_pattern">⚡ Z-Pattern</option>
-                    </select>
+        <!-- Tab 1: Quick Start (Synthetic Data) -->
+        <div id="quick-start" class="tab-content active">
+            <div class="info-card">
+                <h3>✨ Quick Start with Synthetic Data</h3>
+                <ul>
+                    <li>Generate realistic eye-tracking patterns instantly</li>
+                    <li>Explore different visualization types</li>
+                    <li>Perfect for testing and demonstrations</li>
+                </ul>
+            </div>
+            
+            <div class="control-section">
+                <h3>Visualization Settings</h3>
+                <div class="control-grid">
+                    <div class="control-item">
+                        <label for="plot-type">Plot Type:</label>
+                        <select id="plot-type">
+                            <option value="scatter">Scatter Plot</option>
+                            <option value="heatmap">Heatmap</option>
+                            <option value="path">Scan Path</option>
+                            <option value="histogram">Histogram</option>
+                            <option value="density">Density Contour</option>
+                            <option value="3d">3D Trajectory</option>
+                            <option value="temporal">Temporal Analysis</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-item">
+                        <label for="num-points">Number of Points:</label>
+                        <input type="number" id="num-points" value="100" min="10" max="1000">
+                    </div>
+                    
+                    <div class="control-item">
+                        <label for="pattern-type">Pattern Type:</label>
+                        <select id="pattern-type">
+                            <option value="random">Random</option>
+                            <option value="focused">Focused</option>
+                            <option value="scanning">Scanning</option>
+                            <option value="reading">Reading</option>
+                        </select>
+                    </div>
                 </div>
                 
-                <div class="control-item">
-                    <label for="points">📍 Number of Points: <span id="pointsValue">500</span></label>
-                    <input type="range" id="points" min="100" max="1000" step="50" value="500">
-                </div>
-                
-                <div class="control-item">
-                    <label for="resolution">🖥️ Screen Resolution</label>
-                    <select id="resolution">
-                        <option value="1920x1080">1920x1080 (Full HD)</option>
-                        <option value="2560x1440">2560x1440 (2K)</option>
-                        <option value="3840x2160">3840x2160 (4K)</option>
-                        <option value="1366x768">1366x768 (Laptop)</option>
-                    </select>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="generateData()">
+                        🎲 Generate Synthetic Data
+                    </button>
                 </div>
             </div>
             
-            <button class="generate-btn" onclick="generateData()">🔄 Generate Data</button>
-        </div>
-        
-        <div class="stats" id="stats"></div>
-        
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('overview')">📊 Overview</button>
-            <button class="tab" onclick="switchTab('heatmap')">🔥 Heatmap</button>
-            <button class="tab" onclick="switchTab('scanpath')">🗺️ Scan Path</button>
-            <button class="tab" onclick="switchTab('distributions')">📈 Distributions</button>
-            <button class="tab" onclick="switchTab('temporal')">⏱️ Temporal</button>
-            <button class="tab" onclick="switchTab('ai')">🤖 AI Patterns</button>
-            <button class="tab" onclick="switchTab('cognitive')">🧠 Cognitive Load</button>
-        </div>
-        
-        <div id="overview" class="tab-content active">
-            <div class="plot-grid">
-                <div class="plot-container" id="plot-heatmap-overview"></div>
-                <div class="plot-container" id="plot-scanpath-overview"></div>
-                <div class="plot-container" id="plot-duration-overview"></div>
-                <div class="plot-container" id="plot-spatial-overview"></div>
-            </div>
-        </div>
-        
-        <div id="heatmap" class="tab-content">
-            <div class="plot-container" id="plot-heatmap"></div>
-        </div>
-        
-        <div id="scanpath" class="tab-content">
-            <div class="plot-container" id="plot-scanpath"></div>
-        </div>
-        
-        <div id="distributions" class="tab-content">
-            <div class="plot-grid">
-                <div class="plot-container" id="plot-x-dist"></div>
-                <div class="plot-container" id="plot-y-dist"></div>
-                <div class="plot-container" id="plot-duration"></div>
-                <div class="plot-container" id="plot-density"></div>
-            </div>
-        </div>
-        
-        <div id="temporal" class="tab-content">
-            <div class="plot-container" id="plot-temporal"></div>
-            <div class="plot-container" id="plot-velocity"></div>
-        </div>
-        
-        <div id="ai" class="tab-content">
             <div class="plot-container">
-                <h2 style="color: #e74c3c; margin-bottom: 20px;">🤖 AI Pattern Recognition</h2>
-                <div id="ai-analysis" style="padding: 20px; background: #f8f9fa; border-radius: 10px;">
-                    <p style="text-align: center; color: #6c757d;">Generate data to see AI analysis</p>
+                <div id="quick-plot"></div>
+            </div>
+        </div>
+        
+        <!-- Tab 2: Upload CSV Data -->
+        <div id="upload-data" class="tab-content">
+            <div class="info-card">
+                <h3>📤 Upload Your Eye-Tracking Data</h3>
+                <ul>
+                    <li>CSV file format required: timestamp, x, y coordinates</li>
+                    <li>Optional columns: fixation_duration, pupil_size</li>
+                    <li>Data will be processed in your browser (secure & private)</li>
+                </ul>
+            </div>
+            
+            <div class="file-upload" id="file-upload-area">
+                <div class="file-upload-icon">📁</div>
+                <h3>Drag & Drop CSV File</h3>
+                <p>or click to browse</p>
+                <input type="file" id="csv-file-input" accept=".csv" onchange="handleFileSelect(event)">
+            </div>
+            
+            <div id="upload-status" class="status-message"></div>
+            
+            <div id="upload-results" style="display: none;">
+                <div class="results-container">
+                    <div class="result-card">
+                        <h4>📊 Data Summary</h4>
+                        <div id="data-summary"></div>
+                    </div>
+                </div>
+                
+                <div class="control-section">
+                    <h3>Visualization Settings</h3>
+                    <div class="control-grid">
+                        <div class="control-item">
+                            <label for="upload-plot-type">Plot Type:</label>
+                            <select id="upload-plot-type">
+                                <option value="scatter">Scatter Plot</option>
+                                <option value="heatmap">Heatmap</option>
+                                <option value="path">Scan Path</option>
+                                <option value="histogram">Histogram</option>
+                                <option value="density">Density Contour</option>
+                                <option value="3d">3D Trajectory</option>
+                                <option value="temporal">Temporal Analysis</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-primary" onclick="visualizeUploadedData()">
+                            📊 Visualize Data
+                        </button>
+                        <button class="btn btn-secondary" onclick="compareToBaseline()">
+                            🤖 Compare to AI Baseline
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="plot-container">
+                    <div id="upload-plot"></div>
                 </div>
             </div>
         </div>
         
-        <div id="cognitive" class="tab-content">
-            <div class="plot-container">
-                <h2 style="color: #9b59b6; margin-bottom: 20px;">🧠 Cognitive Load Analysis</h2>
-                <div id="cognitive-analysis" style="padding: 20px; background: #f8f9fa; border-radius: 10px;">
-                    <p style="text-align: center; color: #6c757d;">Generate data to see cognitive load metrics</p>
+        <!-- Tab 3: AI Analysis -->
+        <div id="ai-analysis" class="tab-content">
+            <div class="info-card">
+                <h3>🤖 AI-Powered Baseline Comparison</h3>
+                <ul>
+                    <li>Trained on 23 children with autism (ages 2.7-11.7 years)</li>
+                    <li>Uses deep learning autoencoder for pattern recognition</li>
+                    <li>Compares your data to established autism research baseline</li>
+                    <li>Provides similarity score and detailed feature analysis</li>
+                </ul>
+            </div>
+            
+            <div id="ai-loading" style="display: none;">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading AI model...</div>
+            </div>
+            
+            <div id="ai-status" class="status-message"></div>
+            
+            <div id="ai-results" style="display: none;">
+                <div class="results-container">
+                    <div class="result-card">
+                        <h4>🎯 Similarity Score</h4>
+                        <div class="score-display" id="similarity-score">--</div>
+                        <div class="interpretation" id="interpretation"></div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h4>📈 Detailed Metrics</h4>
+                        <div id="detailed-metrics"></div>
+                    </div>
+                    
+                    <div class="result-card">
+                        <h4>🔬 Feature Analysis</h4>
+                        <div id="feature-analysis"></div>
+                    </div>
                 </div>
             </div>
+            
+            <div class="control-section" style="margin-top: 20px;">
+                <p><strong>Note:</strong> Upload CSV data first in the "Upload CSV" tab, then click "Compare to AI Baseline"</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>&copy; 2024 Eye-Tracking Visualizer | Open Source Project</p>
+            <p>Dataset: <a href="https://figshare.com/articles/dataset/Sample_of_Eye-Tracking_Data_from_Children_with_Autism_-_Dataset/23636605" target="_blank">25 Participants with ASD</a></p>
+            <p><a href="https://github.com/rogerjs93/eyetrackingvisualiser" target="_blank">View on GitHub</a></p>
         </div>
     </div>
     
-    <script src="methodology_explanations.js"></script>
-    <script src="visualizer.js"></script>
+    <script>
+        // Global variables
+        let currentData = [];
+        let baselineModel = null;
+        
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Eye-Tracking Visualizer Loaded');
+            
+            // Try to pre-load the AI model
+            try {
+                showStatus('ai-status', 'Loading AI model in background...', 'info');
+                document.getElementById('ai-loading').style.display = 'block';
+                
+                baselineModel = new BaselineModelWeb();
+                await baselineModel.loadModel();
+                
+                document.getElementById('ai-loading').style.display = 'none';
+                showStatus('ai-status', '✅ AI model loaded successfully!', 'success');
+                
+                console.log('✅ Baseline model loaded');
+            } catch (error) {
+                console.error('❌ Failed to load model:', error);
+                document.getElementById('ai-loading').style.display = 'none';
+                showStatus('ai-status', '⚠️ AI model failed to load. CSV upload still works for visualization.', 'error');
+            }
+            
+            // Setup file upload drag & drop
+            const uploadArea = document.getElementById('file-upload-area');
+            
+            uploadArea.addEventListener('click', () => {
+                document.getElementById('csv-file-input').click();
+            });
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('drag-over');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFile(files[0]);
+                }
+            });
+        });
+        
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Set button active
+            event.target.closest('.tab-button').classList.add('active');
+        }
+        
+        // Show status message
+        function showStatus(elementId, message, type) {
+            const statusEl = document.getElementById(elementId);
+            statusEl.textContent = message;
+            statusEl.className = `status-message ${type}`;
+            statusEl.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusEl.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        // Generate synthetic data
+        function generateData() {
+            const numPoints = parseInt(document.getElementById('num-points').value);
+            const patternType = document.getElementById('pattern-type').value;
+            const plotType = document.getElementById('plot-type').value;
+            
+            currentData = generateSyntheticData(numPoints, patternType);
+            
+            visualizePlot('quick-plot', currentData, plotType, 'Synthetic Eye-Tracking Data');
+        }
+        
+        // Generate synthetic eye-tracking data
+        function generateSyntheticData(n, pattern) {
+            const data = [];
+            let centerX = 50, centerY = 50;
+            
+            for (let i = 0; i < n; i++) {
+                let x, y;
+                
+                switch(pattern) {
+                    case 'focused':
+                        x = centerX + (Math.random() - 0.5) * 20;
+                        y = centerY + (Math.random() - 0.5) * 20;
+                        break;
+                    case 'scanning':
+                        x = (i / n) * 80 + 10;
+                        y = 30 + Math.sin(i * 0.3) * 20;
+                        break;
+                    case 'reading':
+                        const line = Math.floor(i / (n/5));
+                        x = 10 + (i % (n/5)) / (n/5) * 80;
+                        y = 20 + line * 15;
+                        break;
+                    default: // random
+                        x = Math.random() * 100;
+                        y = Math.random() * 100;
+                }
+                
+                data.push({
+                    timestamp: i * 100,
+                    x: Math.max(0, Math.min(100, x)),
+                    y: Math.max(0, Math.min(100, y)),
+                    fixation_duration: 150 + Math.random() * 200,
+                    pupil_size: 3 + Math.random() * 2
+                });
+            }
+            
+            return data;
+        }
+        
+        // File handling
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            handleFile(file);
+        }
+        
+        function handleFile(file) {
+            if (!file) return;
+            
+            if (!file.name.endsWith('.csv')) {
+                showStatus('upload-status', '❌ Please select a CSV file', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                try {
+                    const csv = e.target.result;
+                    currentData = parseCSV(csv);
+                    
+                    showStatus('upload-status', `✅ Successfully loaded ${currentData.length} data points`, 'success');
+                    
+                    // Show results section
+                    document.getElementById('upload-results').style.display = 'block';
+                    
+                    // Display summary
+                    displayDataSummary(currentData);
+                    
+                    // Auto-visualize
+                    visualizeUploadedData();
+                    
+                } catch (error) {
+                    console.error('Error parsing CSV:', error);
+                    showStatus('upload-status', `❌ Error parsing CSV: ${error.message}`, 'error');
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        // Parse CSV
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+            
+            const data = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                const row = {};
+                
+                headers.forEach((header, index) => {
+                    row[header] = values[index] ? values[index].trim() : '';
+                });
+                
+                // Parse required fields
+                data.push({
+                    timestamp: parseFloat(row.timestamp || row.time || i * 100),
+                    x: parseFloat(row.x || row.gaze_x || 0),
+                    y: parseFloat(row.y || row.gaze_y || 0),
+                    fixation_duration: parseFloat(row.fixation_duration || 200),
+                    pupil_size: parseFloat(row.pupil_size || 3.5)
+                });
+            }
+            
+            return data;
+        }
+        
+        // Display data summary
+        function displayDataSummary(data) {
+            const summary = document.getElementById('data-summary');
+            
+            const stats = {
+                points: data.length,
+                duration: ((data[data.length-1].timestamp - data[0].timestamp) / 1000).toFixed(2),
+                avgX: (data.reduce((sum, d) => sum + d.x, 0) / data.length).toFixed(2),
+                avgY: (data.reduce((sum, d) => sum + d.y, 0) / data.length).toFixed(2)
+            };
+            
+            summary.innerHTML = `
+                <p><strong>Total Points:</strong> ${stats.points}</p>
+                <p><strong>Duration:</strong> ${stats.duration} seconds</p>
+                <p><strong>Average X:</strong> ${stats.avgX}</p>
+                <p><strong>Average Y:</strong> ${stats.avgY}</p>
+            `;
+        }
+        
+        // Visualize uploaded data
+        function visualizeUploadedData() {
+            if (currentData.length === 0) {
+                showStatus('upload-status', '❌ No data to visualize', 'error');
+                return;
+            }
+            
+            const plotType = document.getElementById('upload-plot-type').value;
+            visualizePlot('upload-plot', currentData, plotType, 'Uploaded Eye-Tracking Data');
+        }
+        
+        // Compare to baseline
+        async function compareToBaseline() {
+            if (currentData.length === 0) {
+                showStatus('upload-status', '❌ No data loaded. Please upload CSV first.', 'error');
+                return;
+            }
+            
+            if (!baselineModel || !baselineModel.isModelLoaded) {
+                showStatus('upload-status', '❌ AI model not loaded', 'error');
+                return;
+            }
+            
+            // Switch to AI Analysis tab
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('ai-analysis').classList.add('active');
+            document.querySelectorAll('.tab-button')[2].classList.add('active');
+            
+            // Show loading
+            document.getElementById('ai-loading').style.display = 'block';
+            document.getElementById('ai-results').style.display = 'none';
+            
+            try {
+                const results = await baselineModel.compareToBaseline(currentData);
+                
+                // Hide loading
+                document.getElementById('ai-loading').style.display = 'none';
+                document.getElementById('ai-results').style.display = 'block';
+                
+                // Display results
+                document.getElementById('similarity-score').textContent = results.similarityScore + '%';
+                document.getElementById('interpretation').textContent = results.interpretation;
+                
+                // Detailed metrics
+                document.getElementById('detailed-metrics').innerHTML = `
+                    <p><strong>Reconstruction Error:</strong> ${results.reconstructionError.toFixed(4)}</p>
+                    <p><strong>Data Points:</strong> ${currentData.length}</p>
+                    <p><strong>Features Analyzed:</strong> 28</p>
+                `;
+                
+                // Feature analysis (top deviations)
+                const featureNames = ['X Mean', 'X Std', 'X Min', 'X Max', 'Y Mean', 'Y Std', 'Y Min', 'Y Max',
+                    'Fixation Duration Mean', 'Fixation Duration Std', 'Fixation Count', 'Saccade Velocity Mean',
+                    'Saccade Velocity Std', 'Saccade Amplitude Mean', 'Saccade Amplitude Std', 'Pupil Size Mean',
+                    'Pupil Size Std', 'Spatial Coverage', 'Fixation Dispersion', 'Scan Path Length',
+                    'Gaze Entropy', 'Center Bias', 'Edge Bias', 'ROI Focus', 'V/H Ratio',
+                    'Temporal Consistency', 'Attention Switches', 'Revisit Rate'];
+                
+                let featureHTML = '<table style="width:100%; border-collapse: collapse;">';
+                featureHTML += '<tr><th style="text-align:left; padding: 5px; border-bottom: 1px solid #ddd;">Feature</th>';
+                featureHTML += '<th style="text-align:right; padding: 5px; border-bottom: 1px solid #ddd;">Z-Score</th></tr>';
+                
+                results.zScores.forEach((z, i) => {
+                    const absZ = Math.abs(z);
+                    if (absZ > 1.5) {  // Show significant deviations
+                        const color = absZ > 2 ? '#dc3545' : '#ffc107';
+                        featureHTML += `<tr style="background: ${color}22;">`;
+                        featureHTML += `<td style="padding: 5px;">${featureNames[i]}</td>`;
+                        featureHTML += `<td style="padding: 5px; text-align: right;">${z.toFixed(2)}</td>`;
+                        featureHTML += '</tr>';
+                    }
+                });
+                
+                featureHTML += '</table>';
+                document.getElementById('feature-analysis').innerHTML = featureHTML;
+                
+                showStatus('ai-status', '✅ Analysis complete!', 'success');
+                
+            } catch (error) {
+                console.error('❌ Error during comparison:', error);
+                document.getElementById('ai-loading').style.display = 'none';
+                showStatus('ai-status', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Visualization function (simplified - add full Plotly code here)
+        function visualizePlot(containerId, data, plotType, title) {
+            const x = data.map(d => d.x);
+            const y = data.map(d => d.y);
+            
+            let plotData, layout;
+            
+            switch(plotType) {
+                case 'scatter':
+                    plotData = [{
+                        x: x,
+                        y: y,
+                        mode: 'markers',
+                        type: 'scatter',
+                        marker: {
+                            size: 8,
+                            color: data.map((d, i) => i),
+                            colorscale: 'Viridis',
+                            showscale: true
+                        }
+                    }];
+                    break;
+                    
+                case 'heatmap':
+                    // Create 2D histogram for heatmap
+                    plotData = [{
+                        x: x,
+                        y: y,
+                        type: 'histogram2d',
+                        colorscale: 'Hot',
+                        reversescale: true
+                    }];
+                    break;
+                    
+                case 'path':
+                    plotData = [{
+                        x: x,
+                        y: y,
+                        mode: 'lines+markers',
+                        type: 'scatter',
+                        line: { color: '#667eea', width: 2 },
+                        marker: { size: 5, color: '#764ba2' }
+                    }];
+                    break;
+                    
+                default:
+                    plotData = [{
+                        x: x,
+                        y: y,
+                        mode: 'markers',
+                        type: 'scatter'
+                    }];
+            }
+            
+            layout = {
+                title: title,
+                xaxis: { title: 'X Position', range: [0, 100] },
+                yaxis: { title: 'Y Position', range: [0, 100] },
+                height: 500
+            };
+            
+            Plotly.newPlot(containerId, plotData, layout, {responsive: true});
+        }
+    </script>
 </body>
 </html>

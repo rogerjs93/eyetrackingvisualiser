@@ -1,0 +1,15 @@
+{
+  "modelType": "layers-model",
+  "format": "tfjs-layers",
+  "inputShape": [
+    28
+  ],
+  "outputShape": [
+    28
+  ],
+  "layers": 14,
+  "parameters": 9708,
+  "framework": "Keras",
+  "kerasVersion": "3.12.0",
+  "tensorflow": "2.20.0"
+}
