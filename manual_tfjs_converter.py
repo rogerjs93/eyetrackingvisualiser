@@ -12,7 +12,7 @@ import shutil
 def convert_keras_to_tfjs_manual(keras_model_path, output_dir, scaler_json_path):
     """
     Manually convert Keras model to TensorFlow.js format
-    Creates model.json and weight binary files compatible with TF.js
+    Uses Sequential model format for better compatibility
     """
     print(f"\n📂 Loading Keras model: {keras_model_path}")
     model = keras.models.load_model(keras_model_path)
@@ -24,23 +24,29 @@ def convert_keras_to_tfjs_manual(keras_model_path, output_dir, scaler_json_path)
         shutil.rmtree(output_path)
     output_path.mkdir(parents=True, exist_ok=True)
     
-    # Get model config
-    config = model.get_config()
+    # Rebuild as Sequential model for TF.js compatibility
+    print("🔄 Converting to Sequential format for TF.js...")
+    sequential_model = keras.Sequential()
     
-    # Fix InputLayer config for TensorFlow.js compatibility
-    for layer in config.get('layers', []):
-        if layer.get('class_name') == 'InputLayer':
-            layer_config = layer.get('config', {})
-            # Convert batch_shape to batchInputShape for TF.js
-            if 'batch_shape' in layer_config:
-                layer_config['batchInputShape'] = layer_config.pop('batch_shape')
-            # Ensure dtype is set
-            if 'dtype' not in layer_config:
-                layer_config['dtype'] = 'float32'
+    # Add Input layer explicitly
+    sequential_model.add(keras.Input(shape=(28,), name='input'))
+    
+    # Copy all layers except InputLayer
+    for layer in model.layers:
+        if not isinstance(layer, keras.layers.InputLayer):
+            # Clone the layer
+            new_layer = layer.__class__.from_config(layer.get_config())
+            sequential_model.add(new_layer)
+    
+    # Copy weights
+    sequential_model.set_weights(model.get_weights())
+    
+    # Get Sequential model config
+    config = sequential_model.get_config()
     
     # Create TF.js model topology
     topology = {
-        "class_name": model.__class__.__name__,
+        "class_name": "Sequential",
         "config": config,
         "keras_version": tf.keras.__version__,
         "backend": "tensorflow"
@@ -50,7 +56,7 @@ def convert_keras_to_tfjs_manual(keras_model_path, output_dir, scaler_json_path)
     all_weights = []
     weight_data = []
     
-    for layer in model.layers:
+    for layer in sequential_model.layers:
         layer_weights = layer.get_weights()
         if len(layer_weights) > 0:
             for i, weight in enumerate(layer_weights):
@@ -81,7 +87,7 @@ def convert_keras_to_tfjs_manual(keras_model_path, output_dir, scaler_json_path)
     model_json_path = output_path / "model.json"
     with open(model_json_path, 'w') as f:
         json.dump(model_config, f, indent=2)
-    print(f"✓ Created model.json")
+    print(f"✓ Created model.json (Sequential format)")
     
     # Save weights as binary
     weights_path = output_path / weight_file
