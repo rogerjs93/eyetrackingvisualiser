@@ -18,17 +18,36 @@ class BaselineModelWeb {
         try {
             console.log('🔄 Loading TensorFlow.js model...');
             
-            // Load the model
-            this.model = await tf.loadLayersModel('models/baseline_tfjs/model.json');
+            // Determine base URL (works for both local and GitHub Pages)
+            const baseUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+                ? '' 
+                : 'https://rogerjs93.github.io/eyetrackingvisualiser/';
+            
+            console.log(`📍 Base URL: ${baseUrl || 'relative path'}`);
+            
+            // Load the model with proper path
+            const modelPath = `${baseUrl}models/baseline_tfjs/model.json`;
+            console.log(`📂 Loading model from: ${modelPath}`);
+            this.model = await tf.loadLayersModel(modelPath);
             console.log('✅ Model loaded successfully');
             
             // Load scaler parameters (mean and scale from StandardScaler)
-            const scalerResponse = await fetch('models/baseline/scaler.json');
+            const scalerPath = `${baseUrl}models/baseline/scaler.json`;
+            console.log(`📂 Loading scaler from: ${scalerPath}`);
+            const scalerResponse = await fetch(scalerPath);
+            if (!scalerResponse.ok) {
+                throw new Error(`Failed to load scaler: ${scalerResponse.status} ${scalerResponse.statusText}`);
+            }
             this.scaler = await scalerResponse.json();
             console.log('✅ Scaler parameters loaded');
             
             // Load baseline statistics
-            const statsResponse = await fetch('models/baseline/baseline_statistics.json');
+            const statsPath = `${baseUrl}models/baseline/baseline_statistics.json`;
+            console.log(`📂 Loading statistics from: ${statsPath}`);
+            const statsResponse = await fetch(statsPath);
+            if (!statsResponse.ok) {
+                throw new Error(`Failed to load statistics: ${statsResponse.status} ${statsResponse.statusText}`);
+            }
             this.baselineStats = await statsResponse.json();
             console.log('✅ Baseline statistics loaded');
             
@@ -36,6 +55,7 @@ class BaselineModelWeb {
             return true;
         } catch (error) {
             console.error('❌ Error loading model:', error);
+            console.error('Error details:', error.message);
             throw error;
         }
     }
