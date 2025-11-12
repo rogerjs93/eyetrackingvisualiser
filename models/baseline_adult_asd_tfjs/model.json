@@ -1,7 +1,7 @@
 {
   "format": "layers-model",
-  "generatedBy": "manual-keras-converter",
-  "convertedBy": "TensorFlow.js Python Converter",
+  "generatedBy": "TensorFlow.js v4.x Converter",
+  "convertedBy": "TensorFlow.js Converter v4.22.0",
   "modelTopology": {
     "class_name": "Functional",
     "config": {
@@ -12,14 +12,14 @@
           "module": "keras.layers",
           "class_name": "InputLayer",
           "config": {
-            "batch_shape": [
-              null,
-              28
-            ],
             "dtype": "float32",
             "sparse": false,
             "ragged": false,
-            "name": "encoder_input"
+            "name": "encoder_input",
+            "batchInputShape": [
+              null,
+              28
+            ]
           },
           "registered_name": null,
           "name": "encoder_input",

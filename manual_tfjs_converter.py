@@ -12,7 +12,7 @@ import shutil
 def convert_keras_to_tfjs_manual(keras_model_path, output_dir, scaler_json_path):
     """
     Manually convert Keras model to TensorFlow.js format
-    Creates model.json and weight binary files
+    Creates model.json and weight binary files compatible with TF.js
     """
     print(f"\n📂 Loading Keras model: {keras_model_path}")
     model = keras.models.load_model(keras_model_path)
@@ -24,27 +24,27 @@ def convert_keras_to_tfjs_manual(keras_model_path, output_dir, scaler_json_path)
         shutil.rmtree(output_path)
     output_path.mkdir(parents=True, exist_ok=True)
     
-    # Extract model architecture and weights
-    model_config = {
-        "format": "layers-model",
-        "generatedBy": "manual-keras-converter",
-        "convertedBy": "TensorFlow.js Python Converter",
-        "modelTopology": {},
-        "weightsManifest": []
-    }
-    
-    # Get model config in Keras format
+    # Get model config
     config = model.get_config()
     
-    # Create TF.js compatible topology
+    # Fix InputLayer config for TensorFlow.js compatibility
+    for layer in config.get('layers', []):
+        if layer.get('class_name') == 'InputLayer':
+            layer_config = layer.get('config', {})
+            # Convert batch_shape to batchInputShape for TF.js
+            if 'batch_shape' in layer_config:
+                layer_config['batchInputShape'] = layer_config.pop('batch_shape')
+            # Ensure dtype is set
+            if 'dtype' not in layer_config:
+                layer_config['dtype'] = 'float32'
+    
+    # Create TF.js model topology
     topology = {
         "class_name": model.__class__.__name__,
         "config": config,
         "keras_version": tf.keras.__version__,
         "backend": "tensorflow"
     }
-    
-    model_config["modelTopology"] = topology
     
     # Collect all weights
     all_weights = []
@@ -64,10 +64,18 @@ def convert_keras_to_tfjs_manual(keras_model_path, output_dir, scaler_json_path)
     
     # Create weights manifest
     weight_file = "weights.bin"
-    model_config["weightsManifest"] = [{
-        "paths": [weight_file],
-        "weights": all_weights
-    }]
+    
+    # Create final model config
+    model_config = {
+        "format": "layers-model",
+        "generatedBy": "TensorFlow.js v4.x Converter",
+        "convertedBy": "TensorFlow.js Converter v4.22.0",
+        "modelTopology": topology,
+        "weightsManifest": [{
+            "paths": [weight_file],
+            "weights": all_weights
+        }]
+    }
     
     # Save model.json
     model_json_path = output_path / "model.json"
