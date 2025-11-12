@@ -387,6 +387,16 @@ Identify navigation patterns for interface improvements
 ### Cognitive Research
 Study attention patterns in different cognitive tasks
 
+## Dataset Attribution
+
+The autism eye-tracking dataset used in this project is sourced from:
+
+**Eye Tracking Autism Dataset**  
+Published by: IMT Kaggle Team  
+Available at: [Kaggle - Eye Tracking Autism](https://www.kaggle.com/datasets/imtkaggleteam/eye-tracking-autism)
+
+This dataset contains eye-tracking data from 25 participants with autism spectrum disorder (ASD), ages 2.7-12.3 years, and has been invaluable for developing and testing the autism data analysis features in this visualizer.
+
 ## License
 
 This project is open source and available for educational and research purposes.

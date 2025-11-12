@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Autism dataset - too large for GitHub (download from Kaggle)
+data/autism/
+
 # Distribution / packaging
 .Python
 build/

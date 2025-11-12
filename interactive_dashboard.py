@@ -132,7 +132,7 @@ app.layout = html.Div([
                            'borderRadius': '5px',
                            'marginTop': '25px'
                        }),
-        ], style={'width': '15%', 'display': 'inline-block', 'verticalAlign': 'top'}),
+        ], style={'width': '15%', 'display': 'inline-block', 'verticalAlign': 'top'}, id='button-div'),
     ], style={'padding': '20px', 'backgroundColor': '#ecf0f1', 'borderRadius': '10px', 'marginBottom': '20px'}),
     
     # Statistics Panel
@@ -163,6 +163,19 @@ app.layout = html.Div([
     # Content Area
     html.Div(id='tab-content', style={'padding': '20px'}),
     
+    # Footer with dataset attribution
+    html.Div([
+        html.Hr(style={'margin': '40px 0 20px 0', 'border': 'none', 'borderTop': '1px solid #ddd'}),
+        html.P([
+            "Autism eye-tracking dataset sourced from: ",
+            html.A("Kaggle - Eye Tracking Autism", 
+                   href="https://www.kaggle.com/datasets/imtkaggleteam/eye-tracking-autism",
+                   target="_blank",
+                   style={'color': '#3498db', 'textDecoration': 'none'}),
+            " by IMT Kaggle Team"
+        ], style={'textAlign': 'center', 'color': '#7f8c8d', 'fontSize': '14px', 'marginBottom': '20px'})
+    ]),
+    
     # Store components for data
     dcc.Store(id='data-store'),
     dcc.Store(id='participant-info-store'),
@@ -174,23 +187,26 @@ app.layout = html.Div([
 @app.callback(
     [Output('participant-dropdown', 'disabled'),
      Output('pattern-div', 'style'),
-     Output('points-div', 'style')],
+     Output('points-div', 'style'),
+     Output('generate-button', 'children')],
     [Input('data-source-dropdown', 'value')]
 )
 def toggle_controls(data_source):
     if data_source == 'autism':
-        # Enable participant dropdown, hide synthetic controls
+        # Enable participant dropdown, hide synthetic controls, change button text
         return (
             False,
             {'width': '15%', 'display': 'none', 'marginRight': '20px'},
-            {'width': '20%', 'display': 'none', 'marginRight': '20px'}
+            {'width': '20%', 'display': 'none', 'marginRight': '20px'},
+            '📂 Load Participant Data'
         )
     else:
-        # Disable participant dropdown, show synthetic controls
+        # Disable participant dropdown, show synthetic controls, change button text
         return (
             True,
             {'width': '15%', 'display': 'inline-block', 'marginRight': '20px'},
-            {'width': '20%', 'display': 'inline-block', 'marginRight': '20px'}
+            {'width': '20%', 'display': 'inline-block', 'marginRight': '20px'},
+            '🔄 Generate Synthetic Data'
         )
 
 # Callback to generate data
@@ -208,12 +224,19 @@ def toggle_controls(data_source):
 def generate_data(n_clicks, data_source, participant_id, pattern, n_points, resolution):
     global current_data, screen_width, screen_height
     
+    # Don't generate data on initial page load (n_clicks == 0)
+    # User must click the button to generate/load data
     if n_clicks == 0:
-        # Generate initial data
-        data_source = 'synthetic'
-        pattern = 'natural'
-        n_points = 500
-        resolution = '1920x1080'
+        # Return empty state - no data loaded yet
+        return None, html.Div([
+            html.H3("👋 Welcome!", style={'textAlign': 'center', 'color': '#3498db'}),
+            html.P("Select a data source above:", 
+                   style={'textAlign': 'center', 'fontSize': '16px', 'color': '#7f8c8d', 'marginTop': '20px'}),
+            html.P("🧪 Synthetic Data → Click 'Generate Synthetic Data' to create sample patterns", 
+                   style={'textAlign': 'center', 'fontSize': '14px', 'color': '#95a5a6', 'margin': '10px'}),
+            html.P("🧩 Autism Dataset → Select a participant and click 'Load Participant Data'", 
+                   style={'textAlign': 'center', 'fontSize': '14px', 'color': '#95a5a6', 'margin': '10px'})
+        ], style={'padding': '50px'}), None
     
     # Parse resolution
     screen_width, screen_height = map(int, resolution.split('x'))
@@ -223,12 +246,14 @@ def generate_data(n_clicks, data_source, participant_id, pattern, n_points, reso
     # Load data based on source
     if data_source == 'autism' and participant_id is not None:
         try:
+            print(f"Loading autism data for participant {participant_id}...")
             # Load autism data
             data = autism_loader.load_participant_data(participant_id, screen_width, screen_height)
             participant_info = autism_loader.get_participant_info(participant_id)
+            print(f"✅ Loaded {len(data)} points for participant {participant_id}")
         except Exception as e:
             # Fallback to synthetic if loading fails
-            print(f"Error loading autism data: {e}")
+            print(f"❌ Error loading autism data: {e}")
             data = generate_sample_eyetracking_data(
                 n_points=n_points,
                 screen_width=screen_width,
@@ -238,6 +263,7 @@ def generate_data(n_clicks, data_source, participant_id, pattern, n_points, reso
             )
     else:
         # Generate synthetic data
+        print(f"Generating synthetic data with {n_points} points, pattern: {pattern}")
         data = generate_sample_eyetracking_data(
             n_points=n_points,
             screen_width=screen_width,
@@ -332,8 +358,17 @@ def create_statistics_panel(data, participant_info=None):
 )
 def update_tab_content(tab, data_dict):
     if data_dict is None:
-        return html.Div("Click 'Generate Data' to start!", 
-                       style={'textAlign': 'center', 'padding': '50px', 'fontSize': '20px'})
+        return html.Div([
+            html.H2("🎯 No Data Loaded", style={'textAlign': 'center', 'color': '#3498db'}),
+            html.P("Select a data source and click the button to begin:", 
+                   style={'textAlign': 'center', 'fontSize': '18px', 'color': '#7f8c8d', 'marginBottom': '30px'}),
+            html.Div([
+                html.P("🧪 Synthetic Data → 'Generate Synthetic Data' button", 
+                       style={'margin': '10px', 'fontSize': '16px'}),
+                html.P("🧩 Autism Dataset → 'Load Participant Data' button", 
+                       style={'margin': '10px', 'fontSize': '16px'})
+            ], style={'textAlign': 'center', 'color': '#95a5a6', 'marginTop': '20px'})
+        ], style={'padding': '100px'})
     
     data = pd.DataFrame(data_dict)
     
