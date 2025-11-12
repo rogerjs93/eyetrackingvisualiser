@@ -6,6 +6,10 @@ __pycache__/
 # Autism dataset - too large for GitHub (download from Kaggle)
 data/autism/
 
+# Allow model files to be committed
+!models/
+!models/**/*
+
 # Distribution / packaging
 .Python
 build/
