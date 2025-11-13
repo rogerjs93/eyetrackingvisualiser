@@ -92,11 +92,9 @@
         @keyframes letterFadeIn {
             from {
                 opacity: 0;
-                transform: scale(0.5);
             }
             to {
                 opacity: 1;
-                transform: scale(1);
             }
         }
         
@@ -2795,7 +2793,8 @@
                 chars.forEach((char, i) => {
                     const span = document.createElement('span');
                     span.textContent = char;
-                    span.style.transform = `rotate(${i * angleStep}deg)`;
+                    const angle = i * angleStep;
+                    span.style.transform = `rotate(${angle}deg)`;
                     span.style.animationDelay = `${i * 0.03}s`;
                     circularDiv.appendChild(span);
                 });
