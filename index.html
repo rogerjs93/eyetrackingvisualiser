@@ -582,10 +582,501 @@
             line-height: 1.6;
         }
         
+        /* Toast Notification System */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+        
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideInRight 0.3s ease;
+            border-left: 4px solid;
+        }
+        
+        .toast.success { border-color: #28a745; }
+        .toast.error { border-color: #dc3545; }
+        .toast.warning { border-color: #ffc107; }
+        .toast.info { border-color: #17a2b8; }
+        
+        .toast-icon {
+            font-size: 1.5em;
+            flex-shrink: 0;
+        }
+        
+        .toast-content {
+            flex-grow: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .toast-message {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .toast-close:hover { opacity: 1; }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+            backdrop-filter: blur(5px);
+        }
+        
+        .loading-content {
+            text-align: center;
+            max-width: 500px;
+            padding: 40px;
+        }
+        
+        .spinner-large {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        .loading-steps {
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .step {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: all 0.3s;
+            opacity: 0.4;
+        }
+        
+        .step.active {
+            opacity: 1;
+            background: #e7f3ff;
+            font-weight: 600;
+        }
+        
+        .step.completed {
+            opacity: 0.7;
+            color: #28a745;
+        }
+        
+        /* File Upload Progress */
+        .upload-progress {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        .progress-text {
+            font-size: 0.9em;
+            color: #495057;
+            text-align: center;
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            padding: 12px;
+            background: #e7f3ff;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+        
+        .file-info p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        
+        /* Form Validation */
+        .control-item input:invalid,
+        .control-item input.error,
+        .control-item select.error {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        }
+        
+        .control-item input:valid.validated {
+            border-color: #28a745;
+        }
+        
+        .field-hint {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-top: 4px;
+            display: block;
+        }
+        
+        .field-error {
+            font-size: 0.85em;
+            color: #dc3545;
+            margin-top: 4px;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .help-icon {
+            cursor: help;
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-left: 4px;
+            position: relative;
+        }
+        
+        .help-icon::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #343a40;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            white-space: nowrap;
+            font-size: 0.85em;
+            font-weight: normal;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        
+        .help-icon:hover::before {
+            opacity: 1;
+        }
+        
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        
+        .example-format {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            text-align: left;
+            display: inline-block;
+        }
+        
+        .example-format code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Plot Controls */
+        .plot-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: -10px;
+        }
+        
+        .btn-icon {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+        
+        .btn-icon:hover {
+            border-color: #667eea;
+            background: #e7f3ff;
+        }
+        
+        .plot-info {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .info-badge {
+            padding: 4px 10px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            font-size: 0.85em;
+            color: #495057;
+        }
+        
+        /* Enhanced AI Results */
+        .results-container {
+            display: grid;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .score-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e7f3ff 100%);
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .score-gauge {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+        }
+        
+        .score-text {
+            font-size: 48px;
+            font-weight: bold;
+            fill: #667eea;
+        }
+        
+        .interpretation-enhanced {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .interpretation-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .confidence-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 1s ease;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .metric-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+        
+        .metric-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .metric-icon {
+            font-size: 2em;
+        }
+        
+        .metric-label {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-bottom: 4px;
+        }
+        
+        .metric-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #495057;
+        }
+        
+        /* Footer Citations */
+        .citation-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .citation-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .citation-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        
+        .citation-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .citation-card p {
+            color: #6c757d;
+            font-size: 0.9em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        
+        .citation-card a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        
+        .citation-card a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Performance Optimizations */
+        .circular-text {
+            will-change: transform;
+            transform: translateZ(0);
+        }
+        
+        .animated-title span,
+        .info-card,
+        .control-section {
+            will-change: opacity, transform;
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
+            }
+            
+            .circular-text-container {
+                width: 280px;
+                height: 280px;
+            }
+            
+            .circular-text span {
+                font-size: 1.1em;
             }
             
             .tab-button {
@@ -600,10 +1091,58 @@
             .control-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .toast-container {
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .citation-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .circular-text-container {
+                width: 220px;
+                height: 220px;
+            }
+            
+            .circular-text span {
+                font-size: 0.9em;
+                transform-origin: 0 110px;
+            }
+            
+            .loading-content {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner-large"></div>
+            <h3 id="loading-title">Processing...</h3>
+            <p id="loading-message">Please wait while we process your data</p>
+            <div class="loading-steps" id="loading-steps">
+                <div class="step" id="step-1">⏳ Initializing...</div>
+                <div class="step" id="step-2">⏳ Processing data...</div>
+                <div class="step" id="step-3">⏳ Analyzing patterns...</div>
+                <div class="step" id="step-4">⏳ Generating results...</div>
+            </div>
+        </div>
+    </div>
+    
     <div class="container">
         <!-- Header -->
         <div class="header">
@@ -656,12 +1195,20 @@
                     </div>
                     
                     <div class="control-item">
-                        <label for="num-points">Number of Points:</label>
-                        <input type="number" id="num-points" value="100" min="10" max="1000">
+                        <label for="num-points">
+                            Number of Points:
+                            <span class="help-icon" data-tooltip="More points = slower rendering">ⓘ</span>
+                        </label>
+                        <input type="number" id="num-points" value="100" min="10" max="1000" class="form-input">
+                        <span class="field-hint">10-1000 points (recommended: 100-500)</span>
+                        <span class="field-error" id="num-points-error">Please enter a value between 10 and 1000</span>
                     </div>
                     
                     <div class="control-item">
-                        <label for="pattern-type">Pattern Type:</label>
+                        <label for="pattern-type">
+                            Pattern Type:
+                            <span class="help-icon" data-tooltip="Select eye movement pattern">ⓘ</span>
+                        </label>
                         <select id="pattern-type">
                             <option value="random">Random</option>
                             <option value="focused">Focused</option>
@@ -678,7 +1225,31 @@
                 </div>
             </div>
             
-            <div class="plot-container">
+            <!-- Empty State -->
+            <div id="quick-plot-empty" class="empty-state">
+                <div class="empty-state-icon">📊</div>
+                <h3>Ready to Explore Eye-Tracking Data</h3>
+                <p>Generate synthetic data to see visualization options</p>
+                <button class="btn btn-primary" onclick="generateData()">
+                    🎲 Generate Sample Data
+                </button>
+            </div>
+            
+            <div class="plot-container" id="quick-plot-container" style="display: none;">
+                <div class="plot-controls">
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-icon" onclick="downloadPlot('quick-plot')" title="Download as PNG">
+                            📥 Download
+                        </button>
+                        <button class="btn-icon" onclick="resetZoom('quick-plot')" title="Reset View">
+                            🔄 Reset
+                        </button>
+                    </div>
+                    <div class="plot-info">
+                        <span class="info-badge" title="Click and drag to zoom">🔍 Zoom</span>
+                        <span class="info-badge" title="Double-click to reset">↺ Reset</span>
+                    </div>
+                </div>
                 <div id="quick-plot"></div>
             </div>
         </div>
@@ -701,7 +1272,33 @@
                 <input type="file" id="csv-file-input" accept=".csv" onchange="handleFileSelect(event)">
             </div>
             
+            <!-- Upload Progress -->
+            <div class="upload-progress" id="upload-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <p class="progress-text">Parsing CSV: <span id="progress-percent">0%</span></p>
+            </div>
+            
+            <!-- File Info -->
+            <div class="file-info" id="file-info">
+                <p><strong>📄 File:</strong> <span id="filename"></span></p>
+                <p><strong>📦 Size:</strong> <span id="filesize"></span></p>
+                <p><strong>📊 Rows:</strong> <span id="filerows"></span></p>
+            </div>
+            
             <div id="upload-status" class="status-message"></div>
+            
+            <!-- Empty State for Upload -->
+            <div id="upload-empty" class="empty-state">
+                <div class="empty-state-icon">📤</div>
+                <h3>No Data Uploaded Yet</h3>
+                <p>Drop a CSV file above or click to browse</p>
+                <div class="example-format">
+                    <p><strong>Expected format:</strong></p>
+                    <code>timestamp, x, y, fixation_duration, pupil_size</code>
+                </div>
+            </div>
             
             <div id="upload-results" style="display: none;">
                 <div class="results-container">
@@ -727,7 +1324,10 @@
                             </select>
                         </div>
                         <div class="control-item">
-                            <label for="coordinate-mode">Coordinate Mode:</label>
+                            <label for="coordinate-mode">
+                                Coordinate Mode:
+                                <span class="help-icon" data-tooltip="Raw for stimulus overlay, Normalized for AI">ⓘ</span>
+                            </label>
                             <select id="coordinate-mode" onchange="updateCoordinateMode()">
                                 <option value="raw">Raw Coordinates (for stimulus overlay)</option>
                                 <option value="normalized">Normalized 0-100 (for AI comparison)</option>
@@ -746,6 +1346,20 @@
                 </div>
                 
                 <div class="plot-container">
+                    <div class="plot-controls">
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-icon" onclick="downloadPlot('upload-plot')" title="Download as PNG">
+                                📥 Download
+                            </button>
+                            <button class="btn-icon" onclick="resetZoom('upload-plot')" title="Reset View">
+                                🔄 Reset
+                            </button>
+                        </div>
+                        <div class="plot-info">
+                            <span class="info-badge" title="Click and drag to zoom">🔍 Zoom</span>
+                            <span class="info-badge" title="Double-click to reset">↺ Reset</span>
+                        </div>
+                    </div>
                     <div id="upload-plot"></div>
                 </div>
             </div>
@@ -922,15 +1536,45 @@
             
             <div id="ai-results" style="display: none;">
                 <div class="results-container">
-                    <div class="result-card">
+                    <!-- Enhanced Score Card -->
+                    <div class="result-card score-card">
                         <h4>🎯 Similarity Score</h4>
-                        <div class="score-display" id="similarity-score">--</div>
-                        <div class="interpretation" id="interpretation"></div>
+                        <div class="score-gauge">
+                            <svg viewBox="0 0 200 200">
+                                <circle cx="100" cy="100" r="90" fill="none" stroke="#e9ecef" stroke-width="20"/>
+                                <circle 
+                                    cx="100" cy="100" r="90" 
+                                    fill="none" 
+                                    stroke="url(#scoreGradient)" 
+                                    stroke-width="20"
+                                    stroke-dasharray="565"
+                                    stroke-dashoffset="565"
+                                    id="score-circle"
+                                    transform="rotate(-90 100 100)"
+                                    style="transition: stroke-dashoffset 1s ease"
+                                />
+                                <defs>
+                                    <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#667eea"/>
+                                        <stop offset="100%" stop-color="#764ba2"/>
+                                    </linearGradient>
+                                </defs>
+                                <text x="100" y="100" text-anchor="middle" dy="0.3em" class="score-text" id="similarity-score">--</text>
+                            </svg>
+                        </div>
+                        <div class="interpretation-enhanced">
+                            <div class="interpretation-icon" id="interpretation-icon">📊</div>
+                            <p class="interpretation-text" id="interpretation"></p>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="confidence-fill"></div>
+                            </div>
+                        </div>
                     </div>
                     
+                    <!-- Enhanced Metrics Grid -->
                     <div class="result-card">
-                        <h4>📈 Detailed Metrics</h4>
-                        <div id="detailed-metrics"></div>
+                        <h4>📊 Analysis Metrics</h4>
+                        <div class="metrics-grid" id="detailed-metrics"></div>
                     </div>
                     
                     <div class="result-card">
@@ -951,35 +1595,50 @@
             
             <p style="margin-top: 15px;"><strong>📚 Research Citations & Datasets:</strong></p>
             
-            <p style="margin-top: 10px;">
-                <strong>Children ASD Baseline (Ages 3-12):</strong><br>
-                Cilia, N. D., Boccignone, G., Campolese, M., De Stefano, C., & Scotto di Freca, A. (2023).<br>
-                <em>Eyes Tell All: Gaze Tracking, Recognition & Understanding for Assisting Children with Autism Spectrum Disorder.</em><br>
-                arXiv preprint arXiv:2311.07441.<br>
-                Dataset: <a href="https://www.kaggle.com/datasets/imtkaggleteam/eye-tracking-autism" target="_blank">Kaggle</a> | 
-                Paper: <a href="https://www.researchgate.net/publication/369708398_Eye-tracking_Dataset_to_Support_the_Research_on_Autism_Spectrum_Disorder" target="_blank">ResearchGate</a>
-            </p>
+            <div class="citation-cards">
+                <div class="citation-card">
+                    <h4>👶 Children ASD Baseline (Ages 3-12)</h4>
+                    <p>
+                        Cilia, N. D., Boccignone, G., Campolese, M., De Stefano, C., & Scotto di Freca, A. (2023).<br>
+                        <em>Eyes Tell All: Gaze Tracking, Recognition & Understanding for Assisting Children with Autism Spectrum Disorder.</em>
+                    </p>
+                    <p>
+                        <a href="https://www.kaggle.com/datasets/imtkaggleteam/eye-tracking-autism" target="_blank">📊 Dataset on Kaggle</a> | 
+                        <a href="https://www.researchgate.net/publication/369708398_Eye-tracking_Dataset_to_Support_the_Research_on_Autism_Spectrum_Disorder" target="_blank">📄 Research Paper</a>
+                    </p>
+                </div>
+                
+                <div class="citation-card">
+                    <h4>👨 Adult ASD Baseline</h4>
+                    <p>
+                        Trained on 24 adult participants with ASD (36 trials each).<br>
+                        Source: RawEyetrackingASD.mat<br>
+                        Validation MAE: 0.6065 | Architecture: 28→32→48→24→48→32→28
+                    </p>
+                    <p>
+                        <a href="https://www.kaggle.com/datasets/haocai1/raweyetrackingasd" target="_blank">📊 Dataset on Kaggle</a>
+                    </p>
+                </div>
+                
+                <div class="citation-card">
+                    <h4>✅ Neurotypical Baseline (Healthy Controls)</h4>
+                    <p>
+                        Wilming, N., Onat, S., Ossandón, J. P., et al. (2017).<br>
+                        <em>An extensive dataset of eye movements during viewing of complex images.</em><br>
+                        Scientific Data, 4, 160126.
+                    </p>
+                    <p>
+                        836 trials from diverse age range (7-80 years) | Validation MAE: 0.3478
+                    </p>
+                    <p>
+                        <a href="https://datadryad.org/stash/dataset/doi:10.5061/dryad.9pf75" target="_blank">📊 ETDB v1.0 Dataset</a> | 
+                        <a href="https://doi.org/10.1038/sdata.2016.126" target="_blank">📄 Nature Paper</a>
+                    </p>
+                </div>
+            </div>
             
-            <p style="margin-top: 10px;">
-                <strong>Adult ASD Baseline:</strong><br>
-                Trained on 24 adult participants with ASD (36 trials each).<br>
-                Source: RawEyetrackingASD.mat<br>
-                Dataset: <a href="https://www.kaggle.com/datasets/haocai1/raweyetrackingasd" target="_blank">Kaggle - Raw Eye Tracking ASD</a><br>
-                Validation MAE: 0.6065 | Architecture: 28→32→48→24→48→32→28
-            </p>
-            
-            <p style="margin-top: 10px;">
-                <strong>Neurotypical Baseline (Healthy Controls):</strong><br>
-                Wilming, N., Onat, S., Ossandón, J. P., Açık, A., Kietzmann, T. C., Kaspar, K., Gameiro, R. R., Vormberg, A., & König, P. (2017).<br>
-                <em>An extensive dataset of eye movements during viewing of complex images.</em><br>
-                Scientific Data, 4, 160126.<br>
-                Dataset: <a href="https://datadryad.org/stash/dataset/doi:10.5061/dryad.9pf75" target="_blank">Dryad - ETDB v1.0</a> | 
-                Paper: <a href="https://doi.org/10.1038/sdata.2016.126" target="_blank">Nature Scientific Data</a><br>
-                836 trials from diverse age range (7-80 years) | Validation MAE: 0.3478
-            </p>
-            
-            <p style="margin-top: 15px;">
-                <a href="https://github.com/rogerjs93/eyetrackingvisualiser" target="_blank">📂 View Source Code on GitHub</a>
+            <p style="margin-top: 20px; text-align: center;">
+                <a href="https://github.com/rogerjs93/eyetrackingvisualiser" target="_blank" style="font-size: 1.1em;">📂 View Source Code on GitHub</a>
             </p>
         </div>
     </div>
@@ -1519,67 +2178,87 @@
             document.getElementById('ai-analysis').classList.add('active');
             document.querySelectorAll('.tab-button')[2].classList.add('active');
             
-            // Show loading
-            document.getElementById('ai-loading').style.display = 'block';
+            // Show loading with steps
+            showLoading('AI Analysis', 'Comparing your data to baseline model...', [
+                '⏳ Loading model...',
+                '⏳ Extracting features...',
+                '⏳ Computing similarity...',
+                '⏳ Analyzing patterns...'
+            ]);
+            
+            updateLoadingStep(1, 'active');
             document.getElementById('ai-results').style.display = 'none';
             
             try {
+                updateLoadingStep(1, 'completed');
+                updateLoadingStep(2, 'active');
+                
                 const results = await baselineModel.compareToBaseline(dataForComparison);
                 
-                // Hide loading
-                document.getElementById('ai-loading').style.display = 'none';
-                document.getElementById('ai-results').style.display = 'block';
+                updateLoadingStep(2, 'completed');
+                updateLoadingStep(3, 'active');
                 
-                // Display results
-                document.getElementById('similarity-score').textContent = results.similarityScore + '%';
-                document.getElementById('interpretation').textContent = results.interpretation;
-                
-                // Detailed metrics
-                document.getElementById('detailed-metrics').innerHTML = `
-                    <p><strong>Reconstruction Error:</strong> ${results.reconstructionError.toFixed(4)}</p>
-                    <p><strong>Data Points:</strong> ${dataForComparison.length}</p>
-                    <p><strong>Features Analyzed:</strong> 28</p>
-                `;
-                
-                // Feature analysis (top deviations)
-                const featureNames = ['X Mean', 'X Std', 'X Min', 'X Max', 'Y Mean', 'Y Std', 'Y Min', 'Y Max',
-                    'Fixation Duration Mean', 'Fixation Duration Std', 'Fixation Count', 'Saccade Velocity Mean',
-                    'Saccade Velocity Std', 'Saccade Amplitude Mean', 'Saccade Amplitude Std', 'Pupil Size Mean',
-                    'Pupil Size Std', 'Spatial Coverage', 'Fixation Dispersion', 'Scan Path Length',
-                    'Gaze Entropy', 'Center Bias', 'Edge Bias', 'ROI Focus', 'V/H Ratio',
-                    'Temporal Consistency', 'Attention Switches', 'Revisit Rate'];
-                
-                // Display feature analysis if available
-                if (results.zScores && results.zScores.length > 0) {
-                    let featureHTML = '<table style="width:100%; border-collapse: collapse;">';
-                    featureHTML += '<tr><th style="text-align:left; padding: 5px; border-bottom: 1px solid #ddd;">Feature</th>';
-                    featureHTML += '<th style="text-align:right; padding: 5px; border-bottom: 1px solid #ddd;">Z-Score</th></tr>';
+                setTimeout(() => {
+                    updateLoadingStep(3, 'completed');
+                    updateLoadingStep(4, 'active');
                     
-                    results.zScores.forEach((z, i) => {
-                        const absZ = Math.abs(z);
-                        if (absZ > 1.5) {  // Show significant deviations
-                            const color = absZ > 2 ? '#dc3545' : '#ffc107';
-                            featureHTML += `<tr style="background: ${color}22;">`;
-                            featureHTML += `<td style="padding: 5px;">${featureNames[i]}</td>`;
-                            featureHTML += `<td style="padding: 5px; text-align: right;">${z.toFixed(2)}</td>`;
-                            featureHTML += '</tr>';
+                    setTimeout(() => {
+                        updateLoadingStep(4, 'completed');
+                        hideLoading();
+                        
+                        // Display results
+                        document.getElementById('ai-results').style.display = 'block';
+                        
+                        // Feature analysis (top deviations)
+                        const featureNames = ['X Mean', 'X Std', 'X Min', 'X Max', 'Y Mean', 'Y Std', 'Y Min', 'Y Max',
+                            'Fixation Duration Mean', 'Fixation Duration Std', 'Fixation Count', 'Saccade Velocity Mean',
+                            'Saccade Velocity Std', 'Saccade Amplitude Mean', 'Saccade Amplitude Std', 'Pupil Size Mean',
+                            'Pupil Size Std', 'Spatial Coverage', 'Fixation Dispersion', 'Scan Path Length',
+                            'Gaze Entropy', 'Center Bias', 'Edge Bias', 'ROI Focus', 'V/H Ratio',
+                            'Temporal Consistency', 'Attention Switches', 'Revisit Rate'];
+                        
+                        // Display feature analysis if available
+                        let featureHTML = '';
+                        if (results.zScores && results.zScores.length > 0) {
+                            featureHTML = '<table style="width:100%; border-collapse: collapse;">';
+                            featureHTML += '<tr><th style="text-align:left; padding: 5px; border-bottom: 1px solid #ddd;">Feature</th>';
+                            featureHTML += '<th style="text-align:right; padding: 5px; border-bottom: 1px solid #ddd;">Z-Score</th></tr>';
+                            
+                            results.zScores.forEach((z, i) => {
+                                const absZ = Math.abs(z);
+                                if (absZ > 1.5) {  // Show significant deviations
+                                    const color = absZ > 2 ? '#dc3545' : '#ffc107';
+                                    featureHTML += `<tr style="background: ${color}22;">`;
+                                    featureHTML += `<td style="padding: 5px;">${featureNames[i]}</td>`;
+                                    featureHTML += `<td style="padding: 5px; text-align: right;">${z.toFixed(2)}</td>`;
+                                    featureHTML += '</tr>';
+                                }
+                            });
+                            
+                            featureHTML += '</table>';
+                        } else {
+                            featureHTML = '<p style="padding: 10px; color: #666;">Feature analysis based on reconstruction error only.</p>';
                         }
-                    });
-                    
-                    featureHTML += '</table>';
-                    document.getElementById('feature-analysis').innerHTML = featureHTML;
-                } else {
-                    // If no z-scores available, show a simple message
-                    document.getElementById('feature-analysis').innerHTML = 
-                        '<p style="padding: 10px; color: #666;">Feature analysis based on reconstruction error only.</p>';
-                }
-                
-                showStatus('ai-status', '✅ Analysis complete!', 'success');
+                        
+                        // Use enhanced display function
+                        updateAIResultsDisplay(
+                            results.similarityScore,
+                            results.interpretation,
+                            {
+                                error: results.reconstructionError.toFixed(4),
+                                points: dataForComparison.length
+                            },
+                            featureHTML
+                        );
+                        
+                        showToast('success', 'Analysis Complete', `Similarity Score: ${results.similarityScore.toFixed(1)}%`);
+                    }, 500);
+                }, 300);
                 
             } catch (error) {
                 console.error('❌ Error during comparison:', error);
-                document.getElementById('ai-loading').style.display = 'none';
-                showStatus('ai-status', `❌ Error: ${error.message}`, 'error');
+                hideLoading();
+                showToast('error', 'Analysis Failed', error.message);
             }
         }
         
@@ -1834,6 +2513,273 @@
                 });
         }
         
+        // Toast Notification System
+        function showToast(type, title, message, duration = 5000) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: '✓',
+                error: '✗',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type]}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    ${message ? `<div class="toast-message">${message}</div>` : ''}
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            container.appendChild(toast);
+            
+            if (duration > 0) {
+                setTimeout(() => {
+                    toast.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }, duration);
+            }
+        }
+        
+        // Loading Overlay Control
+        function showLoading(title, message, steps = []) {
+            const overlay = document.getElementById('loading-overlay');
+            document.getElementById('loading-title').textContent = title;
+            document.getElementById('loading-message').textContent = message;
+            
+            const stepsContainer = document.getElementById('loading-steps');
+            if (steps.length > 0) {
+                stepsContainer.innerHTML = steps.map((step, i) => 
+                    `<div class="step" id="step-${i + 1}">${step}</div>`
+                ).join('');
+            }
+            
+            overlay.style.display = 'flex';
+        }
+        
+        function updateLoadingStep(stepNumber, status = 'active') {
+            const step = document.getElementById(`step-${stepNumber}`);
+            if (step) {
+                step.className = `step ${status}`;
+                if (status === 'completed') {
+                    step.textContent = '✓ ' + step.textContent.replace('⏳ ', '');
+                }
+            }
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+        
+        // File Upload Progress
+        function showUploadProgress(percent) {
+            const progress = document.getElementById('upload-progress');
+            const fill = document.getElementById('progress-fill');
+            const percentText = document.getElementById('progress-percent');
+            
+            progress.style.display = 'block';
+            fill.style.width = percent + '%';
+            percentText.textContent = percent + '%';
+        }
+        
+        function hideUploadProgress() {
+            document.getElementById('upload-progress').style.display = 'none';
+        }
+        
+        function showFileInfo(filename, size, rows) {
+            const fileInfo = document.getElementById('file-info');
+            document.getElementById('filename').textContent = filename;
+            document.getElementById('filesize').textContent = (size / 1024).toFixed(2) + ' KB';
+            document.getElementById('filerows').textContent = rows;
+            fileInfo.style.display = 'block';
+        }
+        
+        // Plot Download Function
+        function downloadPlot(plotId) {
+            Plotly.downloadImage(document.getElementById(plotId), {
+                format: 'png',
+                width: 1200,
+                height: 800,
+                filename: `eye-tracking-${plotId}-${Date.now()}`
+            });
+            showToast('success', 'Download Started', 'Your plot is being downloaded');
+        }
+        
+        // Reset Zoom Function
+        function resetZoom(plotId) {
+            Plotly.relayout(document.getElementById(plotId), {
+                'xaxis.autorange': true,
+                'yaxis.autorange': true
+            });
+            showToast('info', 'View Reset', 'Zoom has been reset to default');
+        }
+        
+        // Form Validation
+        function validateNumberInput(inputId, min, max) {
+            const input = document.getElementById(inputId);
+            const value = parseInt(input.value);
+            const errorElement = document.getElementById(inputId + '-error');
+            
+            if (isNaN(value) || value < min || value > max) {
+                input.classList.add('error');
+                if (errorElement) errorElement.style.display = 'block';
+                return false;
+            } else {
+                input.classList.remove('error');
+                input.classList.add('validated');
+                if (errorElement) errorElement.style.display = 'none';
+                return true;
+            }
+        }
+        
+        // Enhanced Generate Data with validation and feedback
+        const originalGenerateData = generateData;
+        generateData = function() {
+            // Validate inputs
+            if (!validateNumberInput('num-points', 10, 1000)) {
+                showToast('error', 'Invalid Input', 'Number of points must be between 10 and 1000');
+                return;
+            }
+            
+            // Show loading
+            showLoading('Generating Data', 'Creating synthetic eye-tracking patterns...', [
+                '⏳ Initializing generator...',
+                '⏳ Generating data points...',
+                '⏳ Applying pattern...',
+                '⏳ Rendering visualization...'
+            ]);
+            
+            updateLoadingStep(1, 'active');
+            setTimeout(() => {
+                updateLoadingStep(1, 'completed');
+                updateLoadingStep(2, 'active');
+                
+                setTimeout(() => {
+                    updateLoadingStep(2, 'completed');
+                    updateLoadingStep(3, 'active');
+                    
+                    setTimeout(() => {
+                        updateLoadingStep(3, 'completed');
+                        updateLoadingStep(4, 'active');
+                        
+                        // Call original function
+                        originalGenerateData();
+                        
+                        setTimeout(() => {
+                            updateLoadingStep(4, 'completed');
+                            hideLoading();
+                            
+                            // Hide empty state, show plot
+                            document.getElementById('quick-plot-empty').style.display = 'none';
+                            document.getElementById('quick-plot-container').style.display = 'block';
+                            
+                            showToast('success', 'Data Generated', `Created ${document.getElementById('num-points').value} data points`);
+                        }, 500);
+                    }, 300);
+                }, 300);
+            }, 300);
+        };
+        
+        // Enhanced File Upload Handler
+        const originalHandleFileSelect = handleFileSelect;
+        handleFileSelect = async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Show file info
+            showFileInfo(file.name, file.size, 'Processing...');
+            
+            // Simulate progress
+            showUploadProgress(0);
+            const progressInterval = setInterval(() => {
+                const currentProgress = parseInt(document.getElementById('progress-percent').textContent);
+                if (currentProgress < 90) {
+                    showUploadProgress(currentProgress + 10);
+                }
+            }, 100);
+            
+            try {
+                // Call original handler
+                await originalHandleFileSelect(event);
+                
+                clearInterval(progressInterval);
+                showUploadProgress(100);
+                
+                setTimeout(() => {
+                    hideUploadProgress();
+                    // Hide empty state
+                    document.getElementById('upload-empty').style.display = 'none';
+                    showToast('success', 'File Uploaded', `Successfully loaded ${file.name}`);
+                }, 500);
+                
+            } catch (error) {
+                clearInterval(progressInterval);
+                hideUploadProgress();
+                showToast('error', 'Upload Failed', error.message);
+            }
+        };
+        
+        // Update AI Results Display with Enhanced Visualization
+        function updateAIResultsDisplay(similarity, interpretation, metrics, features) {
+            // Update score gauge
+            const scoreCircle = document.getElementById('score-circle');
+            const scoreText = document.getElementById('similarity-score');
+            const confidenceFill = document.getElementById('confidence-fill');
+            const interpretationIcon = document.getElementById('interpretation-icon');
+            
+            const circumference = 2 * Math.PI * 90;
+            const offset = circumference - (similarity / 100 * circumference);
+            
+            scoreCircle.style.strokeDashoffset = offset;
+            scoreText.textContent = similarity.toFixed(1) + '%';
+            confidenceFill.style.width = similarity + '%';
+            
+            // Update icon based on score
+            if (similarity >= 80) {
+                interpretationIcon.textContent = '✓';
+            } else if (similarity >= 60) {
+                interpretationIcon.textContent = '⚠';
+            } else {
+                interpretationIcon.textContent = '✗';
+            }
+            
+            // Update interpretation
+            document.getElementById('interpretation').textContent = interpretation;
+            
+            // Update metrics with icons
+            const metricsContainer = document.getElementById('detailed-metrics');
+            metricsContainer.innerHTML = `
+                <div class="metric-item">
+                    <span class="metric-icon">📉</span>
+                    <div>
+                        <div class="metric-label">Reconstruction Error</div>
+                        <div class="metric-value">${metrics.error || '--'}</div>
+                    </div>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-icon">📍</span>
+                    <div>
+                        <div class="metric-label">Data Points Analyzed</div>
+                        <div class="metric-value">${metrics.points || '--'}</div>
+                    </div>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-icon">🧠</span>
+                    <div>
+                        <div class="metric-label">Features Extracted</div>
+                        <div class="metric-value">28</div>
+                    </div>
+                </div>
+            `;
+            
+            // Update feature analysis
+            document.getElementById('feature-analysis').innerHTML = features;
+        }
+        
         // Initialize animations on page load
         window.addEventListener('load', () => {
             // Create circular text animation
@@ -1866,6 +2812,14 @@
             document.querySelectorAll('.info-card').forEach((card, i) => {
                 card.style.animationDelay = `${0.3 + (i * 0.1)}s`;
             });
+            
+            // Add input validation listeners
+            const numPointsInput = document.getElementById('num-points');
+            if (numPointsInput) {
+                numPointsInput.addEventListener('blur', () => {
+                    validateNumberInput('num-points', 10, 1000);
+                });
+            }
         });
     </script>
 </body>
