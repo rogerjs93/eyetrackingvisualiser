@@ -53,26 +53,50 @@
             z-index: 2;
         }
         
-        /* Animated Title */
-        .animated-title {
-            display: inline-block;
+        /* Circular Text Animation */
+        .circular-text-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
             animation: fadeInUp 1s ease-out;
         }
         
-        .animated-title span {
-            display: inline-block;
-            opacity: 0;
-            animation: letterAppear 0.5s ease-out forwards;
+        .circular-text {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: rotate 20s linear infinite;
         }
         
-        @keyframes letterAppear {
+        .circular-text span {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform-origin: 0 200px;
+            font-size: 1.3em;
+            font-weight: 600;
+            opacity: 0;
+            animation: letterFadeIn 0.5s ease-out forwards;
+        }
+        
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        @keyframes letterFadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: scale(0.5);
             }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: scale(1);
             }
         }
         
@@ -583,7 +607,7 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1 class="animated-title" id="mainTitle">🧠 Eye-Tracking Data Visualizer</h1>
+            <div class="circular-text-container" id="circularTextContainer"></div>
             <p>AI-Powered Analysis with Age-Specific ASD Baselines</p>
             <div class="beta-badge">✨ TensorFlow.js AI Features</div>
         </div>
@@ -1812,17 +1836,25 @@
         
         // Initialize animations on page load
         window.addEventListener('load', () => {
-            // Animate title letters
-            const title = document.getElementById('mainTitle');
-            if (title) {
-                const text = title.textContent;
-                title.innerHTML = '';
-                text.split('').forEach((char, i) => {
+            // Create circular text animation
+            const container = document.getElementById('circularTextContainer');
+            if (container) {
+                const text = 'Eye-Tracking Data Visualizer';
+                const circularDiv = document.createElement('div');
+                circularDiv.className = 'circular-text';
+                
+                const chars = text.split('');
+                const angleStep = 360 / chars.length;
+                
+                chars.forEach((char, i) => {
                     const span = document.createElement('span');
                     span.textContent = char;
-                    span.style.animationDelay = `${i * 0.05}s`;
-                    title.appendChild(span);
+                    span.style.transform = `rotate(${i * angleStep}deg)`;
+                    span.style.animationDelay = `${i * 0.03}s`;
+                    circularDiv.appendChild(span);
                 });
+                
+                container.appendChild(circularDiv);
             }
             
             // Stagger control section animations
