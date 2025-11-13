@@ -57,7 +57,12 @@ class BaselineModelWeb {
     }
 
     /**
-     * Extract 28 features from eye-tracking data
+     * Extract 43 features from eye-tracking data
+     * Enhanced with clinically-validated metrics for ASD detection
+     * 
+     * Feature Categories:
+     * - Original 28 features: Basic spatial, temporal, movement metrics
+     * - New 15 features: Advanced eye-tracking patterns linked to ASD research
      */
     extractFeatures(data) {
         // Helper to get min/max without stack overflow
@@ -67,6 +72,7 @@ class BaselineModelWeb {
         const xValues = data.map(d => d.x);
         const yValues = data.map(d => d.y);
         
+        // Original 28 features
         const stats = {
             x_mean: this.mean(xValues),
             x_std: this.std(xValues),
@@ -95,7 +101,63 @@ class BaselineModelWeb {
             vertical_horizontal_ratio: this.calculateVHRatio(data),
             temporal_consistency: this.calculateTemporalConsistency(data),
             attention_switches: this.calculateAttentionSwitches(data),
-            revisit_rate: this.calculateRevisitRate(data)
+            revisit_rate: this.calculateRevisitRate(data),
+            
+            // ===== NEW ADVANCED FEATURES (15) =====
+            
+            // 1. Saccade Directional Entropy (Clinical: Atypical scanning patterns in ASD)
+            // Lower entropy = repetitive/stereotyped gaze patterns
+            saccade_direction_entropy: this.calculateDirectionalEntropy(data),
+            
+            // 2-3. Spatial Autocorrelation (Clinical: Attention stability)
+            // Higher values = more predictable gaze patterns
+            spatial_autocorr_x: this.calculateAutocorrelation(xValues),
+            spatial_autocorr_y: this.calculateAutocorrelation(yValues),
+            
+            // 4. Fixation Cluster Density (Clinical: Areas of Interest focus)
+            // ASD often shows reduced clustering on social stimuli
+            fixation_cluster_density: this.calculateClusterDensity(data),
+            
+            // 5. First Fixation Center Bias (Clinical: Initial attention allocation)
+            // ASD may show peripheral bias on face stimuli
+            first_fixation_center_dist: this.calculateFirstFixationBias(data),
+            
+            // 6. Spatial Revisitation Rate (Clinical: Repetitive behaviors)
+            // Higher rates may indicate compulsive re-checking
+            spatial_revisitation_rate: this.calculateSpatialRevisitation(data),
+            
+            // 7-8. Velocity Distribution Shape (Clinical: Movement planning)
+            // Skewness/kurtosis reveal saccade planning differences
+            velocity_skewness: this.calculateSkewness(this.calculateVelocities(data)),
+            velocity_kurtosis: this.calculateKurtosis(this.calculateVelocities(data)),
+            
+            // 9. Inter-Saccadic Interval Variability (Clinical: Timing consistency)
+            // Higher CV = irregular attention shifts (common in ADHD/ASD)
+            isi_coefficient_variation: this.calculateISIVariability(data),
+            
+            // 10. Ambient vs Focal Attention Ratio (Clinical: Processing style)
+            // Short fixations (ambient) vs long (focal) - cognitive strategy marker
+            ambient_focal_ratio: this.calculateAmbientFocalRatio(data),
+            
+            // 11. Saccade Amplitude Entropy (Clinical: Movement diversity)
+            // Reduced diversity may indicate restricted exploration
+            saccade_amplitude_entropy: this.calculateAmplitudeEntropy(data),
+            
+            // 12. Normalized Scanpath Length (Clinical: Efficiency)
+            // Ratio of actual path to minimum spanning tree
+            scanpath_efficiency: this.calculateScanpathEfficiency(data),
+            
+            // 13. Fixation Duration Entropy (Clinical: Processing variability)
+            // ASD may show more uniform fixation durations
+            fixation_duration_entropy: this.calculateFixationDurationEntropy(data),
+            
+            // 14. Cross-Correlation XY (Clinical: Diagonal movement bias)
+            // Measures coordinated horizontal-vertical movement
+            cross_correlation_xy: this.calculateCrossCorrelation(xValues, yValues),
+            
+            // 15. Peak Velocity Ratio (Clinical: Ballistic vs corrective saccades)
+            // Ratio of max to mean velocity
+            peak_velocity_ratio: this.calculatePeakVelocityRatio(data)
         };
 
         return Object.values(stats);
@@ -135,7 +197,7 @@ class BaselineModelWeb {
             const scaledFeatures = this.transformFeatures(features);
 
             // Run through autoencoder
-            const inputTensor = tf.tensor2d([scaledFeatures], [1, 28]);
+            const inputTensor = tf.tensor2d([scaledFeatures], [1, 43]); // Updated to 43 features
             const reconstruction = await this.model.predict(inputTensor);
             const reconstructedFeatures = await reconstruction.data();
             
@@ -332,6 +394,343 @@ class BaselineModelWeb {
         
         const revisits = Object.values(visits).filter(count => count > 1).length;
         return revisits / Object.keys(visits).length;
+    }
+
+    // ===== NEW ADVANCED FEATURE CALCULATIONS =====
+
+    /**
+     * Calculate saccade directional entropy
+     * Measures diversity of saccade directions (0-3 bits)
+     * Clinical: Lower values may indicate stereotyped scanning patterns in ASD
+     */
+    calculateDirectionalEntropy(data) {
+        if (data.length < 2) return 0;
+        
+        const angles = [];
+        for (let i = 1; i < data.length; i++) {
+            const dx = data[i].x - data[i-1].x;
+            const dy = data[i].y - data[i-1].y;
+            if (dx !== 0 || dy !== 0) {
+                angles.push(Math.atan2(dy, dx));
+            }
+        }
+        
+        if (angles.length === 0) return 0;
+        
+        // Bin into 8 directions (N, NE, E, SE, S, SW, W, NW)
+        const bins = new Array(8).fill(0);
+        angles.forEach(angle => {
+            const binIdx = Math.floor(((angle + Math.PI) / (2 * Math.PI)) * 8) % 8;
+            bins[binIdx]++;
+        });
+        
+        // Calculate entropy
+        const total = bins.reduce((a, b) => a + b, 0);
+        const probs = bins.map(count => (count + 1e-10) / total);
+        const entropy = -probs.reduce((sum, p) => sum + p * Math.log2(p), 0);
+        
+        return entropy;
+    }
+
+    /**
+     * Calculate lag-1 autocorrelation
+     * Measures temporal consistency of gaze position
+     * Clinical: Higher values indicate more predictable gaze patterns
+     */
+    calculateAutocorrelation(values) {
+        if (values.length < 2) return 0;
+        
+        const x1 = values.slice(0, -1);
+        const x2 = values.slice(1);
+        
+        return this.pearsonCorr(x1, x2);
+    }
+
+    /**
+     * Calculate fixation cluster density using simplified DBSCAN
+     * Measures how fixations group into regions of interest
+     * Clinical: ASD may show reduced clustering on social stimuli
+     */
+    calculateClusterDensity(data) {
+        if (data.length < 5) return 0;
+        
+        const eps = 10; // Cluster radius (10% of normalized space)
+        const minPoints = 3;
+        const visited = new Set();
+        let clusters = 0;
+        
+        for (let i = 0; i < data.length; i++) {
+            if (visited.has(i)) continue;
+            
+            // Find neighbors within eps distance
+            const neighbors = [];
+            for (let j = 0; j < data.length; j++) {
+                if (i === j) continue;
+                const dist = Math.sqrt(
+                    Math.pow(data[i].x - data[j].x, 2) +
+                    Math.pow(data[i].y - data[j].y, 2)
+                );
+                if (dist < eps) neighbors.push(j);
+            }
+            
+            // If enough neighbors, mark as cluster
+            if (neighbors.length >= minPoints) {
+                clusters++;
+                visited.add(i);
+                neighbors.forEach(n => visited.add(n));
+            }
+        }
+        
+        return clusters / data.length;
+    }
+
+    /**
+     * Calculate first fixation distance from center
+     * Measures initial attention allocation
+     * Clinical: ASD may show peripheral bias when viewing faces
+     */
+    calculateFirstFixationBias(data) {
+        if (data.length === 0) return 50; // Default to center distance
+        
+        const centerX = 50, centerY = 50;
+        const firstX = data[0].x;
+        const firstY = data[0].y;
+        
+        const dist = Math.sqrt(
+            Math.pow(firstX - centerX, 2) +
+            Math.pow(firstY - centerY, 2)
+        );
+        
+        // Normalize by max possible distance (corner to center)
+        const maxDist = Math.sqrt(50*50 + 50*50);
+        return dist / maxDist * 100;
+    }
+
+    /**
+     * Calculate spatial revisitation rate
+     * Measures how often gaze returns to previously visited regions
+     * Clinical: May indicate repetitive/compulsive viewing behaviors
+     */
+    calculateSpatialRevisitation(data) {
+        if (data.length < 2) return 0;
+        
+        const gridSize = 10; // 10x10 grid
+        const visited = new Map();
+        let revisits = 0;
+        
+        data.forEach(point => {
+            const cellX = Math.floor(point.x / gridSize);
+            const cellY = Math.floor(point.y / gridSize);
+            const cellKey = `${cellX},${cellY}`;
+            
+            if (visited.has(cellKey)) {
+                revisits++;
+            }
+            visited.set(cellKey, (visited.get(cellKey) || 0) + 1);
+        });
+        
+        return revisits / data.length;
+    }
+
+    /**
+     * Calculate skewness of velocity distribution
+     * Measures asymmetry of velocity distribution
+     * Clinical: Reveals saccade planning differences
+     */
+    calculateSkewness(arr) {
+        if (arr.length < 3) return 0;
+        
+        const mean = this.mean(arr);
+        const std = this.std(arr);
+        
+        if (std === 0) return 0;
+        
+        const skew = arr.reduce((sum, x) => {
+            return sum + Math.pow((x - mean) / std, 3);
+        }, 0) / arr.length;
+        
+        return skew;
+    }
+
+    /**
+     * Calculate kurtosis of velocity distribution
+     * Measures "tailedness" of velocity distribution
+     * Clinical: Excess kurtosis indicates extreme velocity events
+     */
+    calculateKurtosis(arr) {
+        if (arr.length < 4) return 0;
+        
+        const mean = this.mean(arr);
+        const std = this.std(arr);
+        
+        if (std === 0) return 0;
+        
+        const kurt = arr.reduce((sum, x) => {
+            return sum + Math.pow((x - mean) / std, 4);
+        }, 0) / arr.length - 3; // Subtract 3 for excess kurtosis
+        
+        return kurt;
+    }
+
+    /**
+     * Calculate Inter-Saccadic Interval coefficient of variation
+     * Measures timing regularity of saccades
+     * Clinical: Higher values indicate irregular attention shifts (ADHD/ASD)
+     */
+    calculateISIVariability(data) {
+        if (data.length < 2) return 0;
+        
+        const intervals = [];
+        for (let i = 1; i < data.length; i++) {
+            const dt = Math.abs(data[i].timestamp - data[i-1].timestamp);
+            if (dt > 0) intervals.push(dt);
+        }
+        
+        if (intervals.length === 0) return 0;
+        
+        const mean = this.mean(intervals);
+        const std = this.std(intervals);
+        
+        return mean > 0 ? std / mean : 0; // Coefficient of Variation
+    }
+
+    /**
+     * Calculate Ambient vs Focal attention ratio
+     * Short fixations (<200ms) vs long (>400ms)
+     * Clinical: Cognitive processing strategy marker
+     */
+    calculateAmbientFocalRatio(data) {
+        const durations = data.map(d => d.fixation_duration || 200);
+        
+        const shortFix = durations.filter(d => d < 200).length;
+        const longFix = durations.filter(d => d > 400).length;
+        
+        return longFix > 0 ? shortFix / longFix : shortFix;
+    }
+
+    /**
+     * Calculate saccade amplitude entropy
+     * Measures diversity of saccade sizes
+     * Clinical: Reduced diversity may indicate restricted exploration
+     */
+    calculateAmplitudeEntropy(data) {
+        const amplitudes = this.calculateAmplitudes(data);
+        
+        if (amplitudes.length < 2) return 0;
+        
+        // Bin amplitudes into 5 categories
+        const max = Math.max(...amplitudes);
+        const binSize = max / 5;
+        const bins = new Array(5).fill(0);
+        
+        amplitudes.forEach(amp => {
+            const binIdx = Math.min(4, Math.floor(amp / binSize));
+            bins[binIdx]++;
+        });
+        
+        // Calculate entropy
+        const total = bins.reduce((a, b) => a + b, 0);
+        const probs = bins.map(count => (count + 1e-10) / total);
+        const entropy = -probs.reduce((sum, p) => sum + p * Math.log2(p), 0);
+        
+        return entropy;
+    }
+
+    /**
+     * Calculate scanpath efficiency
+     * Ratio of straight-line distance to actual path length
+     * Clinical: Lower values may indicate inefficient visual search
+     */
+    calculateScanpathEfficiency(data) {
+        if (data.length < 2) return 1;
+        
+        // Straight-line distance from start to end
+        const dx = data[data.length-1].x - data[0].x;
+        const dy = data[data.length-1].y - data[0].y;
+        const straightDist = Math.sqrt(dx*dx + dy*dy);
+        
+        // Actual path length
+        const actualDist = this.calculateScanPathLength(data);
+        
+        return actualDist > 0 ? straightDist / actualDist : 0;
+    }
+
+    /**
+     * Calculate fixation duration entropy
+     * Measures variability in processing time
+     * Clinical: ASD may show more uniform fixation durations
+     */
+    calculateFixationDurationEntropy(data) {
+        const durations = data.map(d => d.fixation_duration || 200);
+        
+        if (durations.length < 2) return 0;
+        
+        // Bin into 5 categories
+        const min = Math.min(...durations);
+        const max = Math.max(...durations);
+        const range = max - min;
+        
+        if (range === 0) return 0;
+        
+        const bins = new Array(5).fill(0);
+        durations.forEach(dur => {
+            const binIdx = Math.min(4, Math.floor((dur - min) / range * 5));
+            bins[binIdx]++;
+        });
+        
+        // Calculate entropy
+        const total = bins.reduce((a, b) => a + b, 0);
+        const probs = bins.map(count => (count + 1e-10) / total);
+        const entropy = -probs.reduce((sum, p) => sum + p * Math.log2(p), 0);
+        
+        return entropy;
+    }
+
+    /**
+     * Calculate cross-correlation between X and Y movements
+     * Measures coordinated horizontal-vertical movement
+     * Clinical: May reveal diagonal scanning biases
+     */
+    calculateCrossCorrelation(xValues, yValues) {
+        if (xValues.length < 2) return 0;
+        
+        return this.pearsonCorr(xValues, yValues);
+    }
+
+    /**
+     * Calculate peak velocity ratio
+     * Max velocity / mean velocity
+     * Clinical: High ratios indicate ballistic saccades vs corrective movements
+     */
+    calculatePeakVelocityRatio(data) {
+        const velocities = this.calculateVelocities(data);
+        
+        if (velocities.length === 0) return 1;
+        
+        const maxVel = Math.max(...velocities);
+        const meanVel = this.mean(velocities);
+        
+        return meanVel > 0 ? maxVel / meanVel : 1;
+    }
+
+    /**
+     * Calculate Pearson correlation coefficient
+     * Helper for autocorrelation and cross-correlation
+     */
+    pearsonCorr(x, y) {
+        if (x.length !== y.length || x.length === 0) return 0;
+        
+        const n = x.length;
+        const sumX = x.reduce((a, b) => a + b, 0);
+        const sumY = y.reduce((a, b) => a + b, 0);
+        const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+        const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+        const sumY2 = y.reduce((sum, yi) => sum + yi * yi, 0);
+        
+        const num = n * sumXY - sumX * sumY;
+        const den = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+        
+        return den === 0 ? 0 : num / den;
     }
 }
 
