@@ -77,12 +77,14 @@
         
         .cursor {
             display: inline-block;
-            width: 3px;
-            height: 1em;
+            width: 2px;
+            height: 0.05em;
             background: white;
-            margin-left: 4px;
+            margin-left: 2px;
+            margin-bottom: 0.1em;
+            border-radius: 1px;
             animation: blink 1s step-end infinite;
-            vertical-align: middle;
+            vertical-align: baseline;
         }
         
         @keyframes blink {
@@ -1197,8 +1199,8 @@
         <!-- Header -->
         <div class="header">
             <div class="header-content">
-                <div class="circular-text-container" id="circularTextContainer"></div>
                 <div class="typing-text" id="typingText"></div>
+                <div class="circular-text-container" id="circularTextContainer"></div>
             </div>
             <p style="margin-top: 15px;">AI-Powered Analysis with Age-Specific ASD Baselines</p>
             <div class="beta-badge">✨ TensorFlow.js AI Features</div>
@@ -2840,10 +2842,31 @@
         
         // Initialize animations on page load
         window.addEventListener('load', () => {
-            // Create circular text animation with "Eye-Tracking"
+            // Create typing text animation with "Data Visualizer" first
+            const typingText = document.getElementById('typingText');
+            if (typingText) {
+                const text = 'Data Visualizer';
+                const chars = text.split('');
+                
+                chars.forEach((char, i) => {
+                    const span = document.createElement('span');
+                    span.textContent = char;
+                    span.style.animationDelay = `${i * 0.05}s`;
+                    typingText.appendChild(span);
+                });
+                
+                // Add dot cursor after typing animation completes
+                setTimeout(() => {
+                    const cursor = document.createElement('span');
+                    cursor.className = 'cursor';
+                    typingText.appendChild(cursor);
+                }, (chars.length * 50) + 100);
+            }
+            
+            // Create circular text animation with "Eye-Tracking*"
             const container = document.getElementById('circularTextContainer');
             if (container) {
-                const text = 'Eye-Tracking';
+                const text = 'Eye-Tracking*';
                 const circularDiv = document.createElement('div');
                 circularDiv.className = 'circular-text';
                 
@@ -2860,27 +2883,6 @@
                 });
                 
                 container.appendChild(circularDiv);
-            }
-            
-            // Create typing text animation with "Data Visualizer"
-            const typingText = document.getElementById('typingText');
-            if (typingText) {
-                const text = 'Data Visualizer';
-                const chars = text.split('');
-                
-                chars.forEach((char, i) => {
-                    const span = document.createElement('span');
-                    span.textContent = char;
-                    span.style.animationDelay = `${0.5 + (i * 0.05)}s`;
-                    typingText.appendChild(span);
-                });
-                
-                // Add cursor after typing animation completes
-                setTimeout(() => {
-                    const cursor = document.createElement('span');
-                    cursor.className = 'cursor';
-                    typingText.appendChild(cursor);
-                }, 500 + (chars.length * 50) + 100);
             }
             
             // Stagger control section animations
