@@ -12,6 +12,10 @@ data/standard/
 *.hdf5
 *.zip
 
+# Large model files - keep only TF.js versions
+*.keras
+*.h5
+
 # Allow model files to be committed
 !models/
 !models/**/*

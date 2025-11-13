@@ -1,0 +1,10 @@
+{
+  "dataset": "ETDB v1.0 - Neurotypical baseline",
+  "source": "https://datadryad.org/dataset/doi:10.5061/dryad.9pf75",
+  "n_samples": 836,
+  "n_features": 28,
+  "architecture": "28-32-48-24-48-32-28",
+  "validation_mae": 0.347838028263175,
+  "training_samples": 668,
+  "validation_samples": 168
+}

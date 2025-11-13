@@ -113,7 +113,7 @@ def convert_keras_to_tfjs(keras_model_path, output_dir, scaler_mean, scaler_std)
     return model_json_path
 
 def main():
-    """Convert both children and adult models"""
+    """Convert all three baseline models"""
     
     # Children model
     print("\n" + "="*60)
@@ -143,6 +143,21 @@ def main():
         output_dir='models/baseline_adult_asd_tfjs',
         scaler_mean=np.array(adult_scaler['mean']),
         scaler_std=adult_std
+    )
+    
+    # Neurotypical model
+    print("\n" + "="*60)
+    print("CONVERTING NEUROTYPICAL MODEL")
+    print("="*60)
+    
+    with open('models/baseline_neurotypical/scaler.json', 'r') as f:
+        neuro_scaler = json.load(f)
+    neuro_std = np.sqrt(np.array(neuro_scaler['var'])) if 'var' in neuro_scaler else np.array(neuro_scaler['std'])
+    convert_keras_to_tfjs(
+        keras_model_path='models/baseline_neurotypical/neurotypical_baseline.keras',
+        output_dir='models/baseline_neurotypical_tfjs',
+        scaler_mean=np.array(neuro_scaler['mean']),
+        scaler_std=neuro_std
     )
     
     print("\n" + "="*60)

@@ -533,6 +533,13 @@
                                 <option value="temporal">Temporal Analysis</option>
                             </select>
                         </div>
+                        <div class="control-item">
+                            <label for="coordinate-mode">Coordinate Mode:</label>
+                            <select id="coordinate-mode" onchange="updateCoordinateMode()">
+                                <option value="raw">Raw Coordinates (for stimulus overlay)</option>
+                                <option value="normalized">Normalized 0-100 (for AI comparison)</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div style="margin-top: 15px;">
@@ -555,42 +562,162 @@
         <div id="ai-analysis" class="tab-content">
             <div class="info-card">
                 <h3>🤖 AI-Powered Baseline Comparison</h3>
-                <p><strong>Select Age-Appropriate ASD Baseline Model</strong></p>
+                <p><strong>Select Baseline Model for Comparison</strong></p>
                 
                 <div class="control-section" style="margin: 20px 0; background: white;">
                     <label for="age-group-select" style="font-weight: bold; display: block; margin-bottom: 10px;">
-                        👤 Select Age Group:
+                        👤 Select Baseline Population:
                     </label>
                     <select id="age-group-select" style="width: 100%; padding: 10px; font-size: 1em; border: 2px solid #667eea; border-radius: 5px;">
-                        <option value="children">Children (Ages 3-12) - Cilia et al. (2023)</option>
-                        <option value="adult">Adult - Trained on 24 participants</option>
+                        <option value="children">Children with ASD (Ages 3-12) - Cilia et al. (2023)</option>
+                        <option value="adult">Adults with ASD - Trained on 24 participants</option>
+                        <option value="neurotypical">Neurotypical (Healthy Controls) - ETDB v1.0</option>
                     </select>
                 </div>
                 
                 <div id="children-info" class="age-info-section">
-                    <p><strong>Children ASD Baseline Model (Ages 3-12)</strong></p>
-                    <ul>
-                        <li>Trained on 23 children with ASD (ages 3-12 years)</li>
-                        <li>Optimized autoencoder: 30.7% better than original model</li>
-                        <li>Validation MAE: 0.4069</li>
-                        <li>Dataset: <a href="https://www.kaggle.com/datasets/imtkaggleteam/eye-tracking-autism" target="_blank">Kaggle</a></li>
-                        <li>Research: <a href="https://www.researchgate.net/publication/369708398" target="_blank">Cilia et al. (2023) - Eye-tracking Dataset to Support Research on Autism Spectrum Disorder</a></li>
-                    </ul>
+                    <p><strong>🧒 Children ASD Baseline Model (Ages 3-12)</strong></p>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h4 style="margin-top: 0; color: #667eea;">📋 Data Collection Methodology</h4>
+                        <ul style="margin: 10px 0;">
+                            <li><strong>Participants:</strong> 23 children with ASD diagnosis (3-12 years)</li>
+                            <li><strong>Task:</strong> Free viewing of social scenes and interactive stimuli</li>
+                            <li><strong>Recording Settings:</strong>
+                                <ul>
+                                    <li>Sampling rate: Variable (250-500 Hz recommended)</li>
+                                    <li>Calibration: 5-point or 9-point procedure</li>
+                                    <li>Session duration: ~10-15 minutes per participant</li>
+                                </ul>
+                            </li>
+                            <li><strong>Data Format:</strong> CSV with columns: timestamp, x, y, fixation_duration, pupil_size</li>
+                        </ul>
+                        
+                        <h4 style="color: #667eea;">🤖 Model Architecture</h4>
+                        <ul style="margin: 10px 0;">
+                            <li><strong>Type:</strong> Autoencoder (Unsupervised Learning)</li>
+                            <li><strong>Architecture:</strong> 28→32→48→24(latent)→48→32→28</li>
+                            <li><strong>Features Extracted:</strong> 28 statistical features including:
+                                <ul>
+                                    <li>Spatial: mean, std, min, max positions (X, Y)</li>
+                                    <li>Temporal: fixation duration, saccade velocity/amplitude</li>
+                                    <li>Behavioral: spatial coverage, entropy, center bias, scan path length</li>
+                                </ul>
+                            </li>
+                            <li><strong>Training:</strong> 80/20 train-val split, Adam optimizer, MSE loss</li>
+                            <li><strong>Performance:</strong> Validation MAE: 0.4069</li>
+                        </ul>
+                        
+                        <h4 style="color: #667eea;">🎯 To Collect Similar Data:</h4>
+                        <ol style="margin: 10px 0;">
+                            <li>Use any eye-tracker with ≥250 Hz sampling rate</li>
+                            <li>Perform 5-point or 9-point calibration</li>
+                            <li>Record free viewing or social scene tasks (10-15 min)</li>
+                            <li>Export as CSV with: timestamp, x, y coordinates</li>
+                            <li>Coordinates can be raw pixels or normalized</li>
+                        </ol>
+                    </div>
+                    
+                    <p><strong>📚 Research:</strong> <a href="https://www.researchgate.net/publication/369708398" target="_blank">Cilia et al. (2023)</a> | 
+                    <strong>📊 Dataset:</strong> <a href="https://www.kaggle.com/datasets/imtkaggleteam/eye-tracking-autism" target="_blank">Kaggle</a></p>
                 </div>
                 
                 <div id="adult-info" class="age-info-section" style="display: none;">
-                    <p><strong>Adult ASD Baseline Model</strong></p>
-                    <ul>
-                        <li>Trained on 24 adults with ASD</li>
-                        <li>Same architecture as children model (8,020 parameters)</li>
-                        <li>Validation MAE: 0.6065</li>
-                        <li>36 trials per participant, 14,000 time samples per trial</li>
-                        <li>Source: RawEyetrackingASD.mat dataset</li>
-                    </ul>
-                    <p><em>Note: Adult model shows different gaze patterns - higher MAE suggests more variability in adult ASD gaze behavior compared to children.</em></p>
+                    <p><strong>👨 Adult ASD Baseline Model</strong></p>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h4 style="margin-top: 0; color: #667eea;">📋 Data Collection Methodology</h4>
+                        <ul style="margin: 10px 0;">
+                            <li><strong>Participants:</strong> 24 adults with ASD diagnosis</li>
+                            <li><strong>Task:</strong> 36 trials per participant (864 total trials)</li>
+                            <li><strong>Recording Settings:</strong>
+                                <ul>
+                                    <li>Trial duration: ~14,000 time samples per trial</li>
+                                    <li>Sampling rate: Estimated 250-500 Hz</li>
+                                    <li>Viewing distance: Controlled laboratory setting</li>
+                                </ul>
+                            </li>
+                            <li><strong>Data Format:</strong> MATLAB .mat file → converted to CSV format</li>
+                            <li><strong>Original Source:</strong> RawEyetrackingASD.mat dataset</li>
+                        </ul>
+                        
+                        <h4 style="color: #667eea;">🤖 Model Architecture</h4>
+                        <ul style="margin: 10px 0;">
+                            <li><strong>Type:</strong> Autoencoder (same as children model)</li>
+                            <li><strong>Architecture:</strong> 28→32→48→24(latent)→48→32→28 (8,020 parameters)</li>
+                            <li><strong>Features:</strong> Identical 28 features as children model for consistency</li>
+                            <li><strong>Training:</strong> 80/20 split, Adam optimizer, early stopping (patience=15)</li>
+                            <li><strong>Performance:</strong> Validation MAE: 0.6065</li>
+                            <li><strong>Note:</strong> Higher MAE reflects greater variability in adult ASD gaze patterns</li>
+                        </ul>
+                        
+                        <h4 style="color: #667eea;">🎯 To Collect Similar Data:</h4>
+                        <ol style="margin: 10px 0;">
+                            <li>Recruit adult participants (18+ years) with ASD diagnosis</li>
+                            <li>Use eye-tracker with ≥250 Hz sampling (Tobii, EyeLink, etc.)</li>
+                            <li>Multiple trials per participant (30-40 recommended)</li>
+                            <li>Record during natural viewing or cognitive tasks</li>
+                            <li>Export with timestamp, x, y, and optional pupil diameter</li>
+                        </ol>
+                    </div>
+                    
+                    <p><strong>📊 Dataset:</strong> <a href="https://www.kaggle.com/datasets/haocai1/raweyetrackingasd" target="_blank">Kaggle - RawEyetrackingASD</a></p>
                 </div>
                 
-                <p style="margin-top: 15px;"><em>⚠️ Important: Use age-appropriate baseline for accurate screening and comparison.</em></p>
+                <div id="neurotypical-info" class="age-info-section" style="display: none;">
+                    <p><strong>😊 Neurotypical Baseline Model (Healthy Controls)</strong></p>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <h4 style="margin-top: 0; color: #667eea;">📋 Data Collection Methodology</h4>
+                        <ul style="margin: 10px 0;">
+                            <li><strong>Participants:</strong> Healthy individuals (ages 7-80 years)</li>
+                            <li><strong>Datasets Used:</strong> 5 experiments from ETDB v1.0
+                                <ul>
+                                    <li>Baseline: Free viewing of complex images</li>
+                                    <li>Age study: Comparing different age groups</li>
+                                    <li>Memory I & II: Visual memory tasks</li>
+                                    <li>Patch: Texture pattern viewing</li>
+                                </ul>
+                            </li>
+                            <li><strong>Recording Settings:</strong>
+                                <ul>
+                                    <li>Eye-tracker: Various (see ETDB documentation)</li>
+                                    <li>Sampling rates: 250-500 Hz</li>
+                                    <li>Display: 1024×768 to 1920×1080 resolution</li>
+                                    <li>Viewing distance: 60-70 cm typical</li>
+                                </ul>
+                            </li>
+                            <li><strong>Total Trials:</strong> 836 trials across multiple experiments</li>
+                            <li><strong>Data Format:</strong> HDF5 with keys: x, y, trial, SUBJECTINDEX, fixation markers</li>
+                        </ul>
+                        
+                        <h4 style="color: #667eea;">🤖 Model Architecture</h4>
+                        <ul style="margin: 10px 0;">
+                            <li><strong>Type:</strong> Autoencoder (identical to ASD models)</li>
+                            <li><strong>Architecture:</strong> 28→32→48→24(latent)→48→32→28</li>
+                            <li><strong>Features:</strong> Same 28 features (spatial, temporal, behavioral)</li>
+                            <li><strong>Training:</strong> 80/20 split, 100 epochs, early stopping</li>
+                            <li><strong>Performance:</strong> Validation MAE: 0.3478 (best performance)</li>
+                            <li><strong>Interpretation:</strong> Lower MAE indicates more consistent, predictable gaze patterns in neurotypical population</li>
+                        </ul>
+                        
+                        <h4 style="color: #667eea;">🎯 To Collect Similar Data:</h4>
+                        <ol style="margin: 10px 0;">
+                            <li>Screen healthy participants (no neurological conditions)</li>
+                            <li>Use research-grade eye-tracker (≥250 Hz)</li>
+                            <li>Tasks: Free viewing of complex scenes (natural images, faces, etc.)</li>
+                            <li>Include diverse age range for robust baseline</li>
+                            <li>Standardize viewing distance (~60-70 cm) and display size</li>
+                            <li>Multiple trials per participant (10-30 recommended)</li>
+                            <li>Export: timestamp, x, y in screen coordinates or degrees of visual angle</li>
+                        </ol>
+                    </div>
+                    
+                    <p><strong>📚 Research:</strong> <a href="https://doi.org/10.1038/sdata.2016.126" target="_blank">Wilming et al. (2017) - Nature Scientific Data</a> | 
+                    <strong>📊 Dataset:</strong> <a href="https://datadryad.org/stash/dataset/doi:10.5061/dryad.9pf75" target="_blank">ETDB v1.0 - Dryad</a></p>
+                </div>
+                
+                <p style="margin-top: 15px;"><em>⚠️ Important: Select appropriate baseline for meaningful comparison. Neurotypical baseline provides reference for healthy population, while ASD baselines are age-specific.</em></p>
             </div>
             
             <div id="ai-loading" style="display: none;">
@@ -643,8 +770,19 @@
             <p style="margin-top: 10px;">
                 <strong>Adult ASD Baseline:</strong><br>
                 Trained on 24 adult participants with ASD (36 trials each).<br>
-                Dataset: RawEyetrackingASD.mat<br>
+                Source: RawEyetrackingASD.mat<br>
+                Dataset: <a href="https://www.kaggle.com/datasets/haocai1/raweyetrackingasd" target="_blank">Kaggle - Raw Eye Tracking ASD</a><br>
                 Validation MAE: 0.6065 | Architecture: 28→32→48→24→48→32→28
+            </p>
+            
+            <p style="margin-top: 10px;">
+                <strong>Neurotypical Baseline (Healthy Controls):</strong><br>
+                Wilming, N., Onat, S., Ossandón, J. P., Açık, A., Kietzmann, T. C., Kaspar, K., Gameiro, R. R., Vormberg, A., & König, P. (2017).<br>
+                <em>An extensive dataset of eye movements during viewing of complex images.</em><br>
+                Scientific Data, 4, 160126.<br>
+                Dataset: <a href="https://datadryad.org/stash/dataset/doi:10.5061/dryad.9pf75" target="_blank">Dryad - ETDB v1.0</a> | 
+                Paper: <a href="https://doi.org/10.1038/sdata.2016.126" target="_blank">Nature Scientific Data</a><br>
+                836 trials from diverse age range (7-80 years) | Validation MAE: 0.3478
             </p>
             
             <p style="margin-top: 15px;">
@@ -654,10 +792,13 @@
     </div>
     
     <script>
-        // Global variables
-        let currentData = [];
+        // Global variables - SEPARATED by data source
+        let syntheticData = [];  // For generated synthetic data
+        let uploadedRawData = [];  // For uploaded CSV raw coordinates
+        let uploadedNormalizedData = [];  // For uploaded CSV normalized coordinates
         let baselineModel = null;
         let currentAgeGroup = 'children'; // Default to children model
+        let coordinateMode = 'raw'; // Default to raw mode
         
         // Handle age group selection
         function handleAgeGroupChange() {
@@ -669,6 +810,8 @@
                 currentAgeGroup === 'children' ? 'block' : 'none';
             document.getElementById('adult-info').style.display = 
                 currentAgeGroup === 'adult' ? 'block' : 'none';
+            document.getElementById('neurotypical-info').style.display = 
+                currentAgeGroup === 'neurotypical' ? 'block' : 'none';
             
             // Reload model if needed
             loadAgeSpecificModel();
@@ -677,7 +820,12 @@
         // Load the appropriate model based on age group
         async function loadAgeSpecificModel() {
             try {
-                showStatus('ai-status', `Loading ${currentAgeGroup} baseline model...`, 'info');
+                const modelNames = {
+                    'children': 'Children ASD',
+                    'adult': 'Adult ASD',
+                    'neurotypical': 'Neurotypical'
+                };
+                showStatus('ai-status', `Loading ${modelNames[currentAgeGroup]} baseline model...`, 'info');
                 document.getElementById('ai-loading').style.display = 'block';
                 
                 baselineModel = new BaselineModelWeb();
@@ -687,6 +835,10 @@
                     baselineModel.modelPath = 'models/baseline_adult_asd_tfjs/model.json';
                     baselineModel.scalerPath = 'models/baseline_adult_asd_tfjs/scaler.json';
                     baselineModel.threshold = 0.6065; // Adult threshold
+                } else if (currentAgeGroup === 'neurotypical') {
+                    baselineModel.modelPath = 'models/baseline_neurotypical_tfjs/model.json';
+                    baselineModel.scalerPath = 'models/baseline_neurotypical_tfjs/scaler.json';
+                    baselineModel.threshold = 0.3478; // Neurotypical threshold
                 } else {
                     baselineModel.modelPath = 'models/baseline_children_asd_tfjs/model.json';
                     baselineModel.scalerPath = 'models/baseline_children_asd_tfjs/scaler.json';
@@ -696,7 +848,7 @@
                 await baselineModel.loadModel();
                 
                 document.getElementById('ai-loading').style.display = 'none';
-                showStatus('ai-status', `✅ ${currentAgeGroup === 'children' ? 'Children' : 'Adult'} baseline model loaded successfully!`, 'success');
+                showStatus('ai-status', `✅ ${modelNames[currentAgeGroup]} baseline model loaded successfully!`, 'success');
                 
                 console.log(`✅ ${currentAgeGroup} baseline model loaded`);
             } catch (error) {
@@ -777,15 +929,19 @@
             }
         }
         
-        // Generate synthetic data
+        // Generate synthetic data - INDEPENDENT function
         function generateData() {
             const numPoints = parseInt(document.getElementById('num-points').value);
             const patternType = document.getElementById('pattern-type').value;
             const plotType = document.getElementById('plot-type').value;
             
-            currentData = generateSyntheticData(numPoints, patternType);
+            // Generate and store in synthetic data variable
+            syntheticData = generateSyntheticData(numPoints, patternType);
             
-            visualizePlot('quick-plot', currentData, plotType, 'Synthetic Eye-Tracking Data');
+            console.log(`✅ Generated ${syntheticData.length} synthetic data points`);
+            
+            // Visualize in quick-plot container ONLY
+            visualizePlot('quick-plot', syntheticData, plotType, 'Synthetic Eye-Tracking Data');
         }
         
         // Generate synthetic eye-tracking data
@@ -846,15 +1002,24 @@
             reader.onload = (e) => {
                 try {
                     const csv = e.target.result;
-                    currentData = parseCSV(csv);
+                    const parsedData = parseCSV(csv);
                     
-                    showStatus('upload-status', `✅ Successfully loaded ${currentData.length} data points`, 'success');
+                    // Early sampling if data is huge (before any processing)
+                    const MAX_POINTS = 5000;
+                    let displayCount = parsedData.length;
+                    if (parsedData.length > MAX_POINTS) {
+                        displayCount = MAX_POINTS;
+                        showStatus('upload-status', `✅ Loaded ${parsedData.length} points (will visualize ${MAX_POINTS} sampled points for performance)`, 'success');
+                    } else {
+                        showStatus('upload-status', `✅ Successfully loaded ${parsedData.length} data points`, 'success');
+                    }
                     
                     // Show results section
                     document.getElementById('upload-results').style.display = 'block';
                     
-                    // Display summary
-                    displayDataSummary(currentData);
+                    // Display summary using current coordinate mode
+                    const dataToDisplay = coordinateMode === 'raw' ? uploadedRawData : uploadedNormalizedData;
+                    displayDataSummary(dataToDisplay);
                     
                     // Auto-visualize
                     visualizeUploadedData();
@@ -868,67 +1033,275 @@
             reader.readAsText(file);
         }
         
-        // Parse CSV
+        // Parse CSV - STORES in uploaded data variables
         function parseCSV(csv) {
             const lines = csv.trim().split('\n');
-            const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
-            
-            const data = [];
-            
-            for (let i = 1; i < lines.length; i++) {
-                const values = lines[i].split(',');
-                const row = {};
-                
-                headers.forEach((header, index) => {
-                    row[header] = values[index] ? values[index].trim() : '';
-                });
-                
-                // Parse required fields
-                data.push({
-                    timestamp: parseFloat(row.timestamp || row.time || i * 100),
-                    x: parseFloat(row.x || row.gaze_x || 0),
-                    y: parseFloat(row.y || row.gaze_y || 0),
-                    fixation_duration: parseFloat(row.fixation_duration || 200),
-                    pupil_size: parseFloat(row.pupil_size || 3.5)
-                });
+            if (lines.length === 0) {
+                throw new Error('CSV file is empty');
             }
             
-            return data;
+            const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+            console.log('📋 CSV Headers found:', headers.length, 'columns');
+            console.log('📋 First 10 headers:', headers.slice(0, 10));
+            
+            // Detect column indices - more sophisticated matching for eye-tracking data
+            // Look for patterns: x, gaze_x, pupil x, x [px], etc.
+            let xIndex = -1;
+            let yIndex = -1;
+            
+            // Priority 1: Exact matches
+            xIndex = headers.findIndex(h => h === 'x' || h === 'gaze_x' || h === 'x_pos');
+            yIndex = headers.findIndex(h => h === 'y' || h === 'gaze_y' || h === 'y_pos');
+            
+            // Priority 2: Pupil position columns (common in eye-trackers)
+            if (xIndex === -1) {
+                xIndex = headers.findIndex(h => h.includes('pupil') && h.includes('x') && h.includes('[px]'));
+            }
+            if (yIndex === -1) {
+                yIndex = headers.findIndex(h => h.includes('pupil') && h.includes('y') && h.includes('[px]'));
+            }
+            
+            // Priority 3: Any column with coordinate-like names
+            if (xIndex === -1) {
+                xIndex = headers.findIndex(h => 
+                    (h.includes('x') && h.includes('pos')) ||
+                    (h.includes('x') && h.includes('coord')) ||
+                    h.endsWith('_x') || h.endsWith(' x')
+                );
+            }
+            if (yIndex === -1) {
+                yIndex = headers.findIndex(h => 
+                    (h.includes('y') && h.includes('pos')) ||
+                    (h.includes('y') && h.includes('coord')) ||
+                    h.endsWith('_y') || h.endsWith(' y')
+                );
+            }
+            
+            // Priority 4: Fallback - first column with x or y (but avoid index columns)
+            if (xIndex === -1) {
+                xIndex = headers.findIndex((h, i) => i > 2 && h.includes('x'));
+            }
+            if (yIndex === -1) {
+                yIndex = headers.findIndex((h, i) => i > 2 && h.includes('y'));
+            }
+            
+            if (xIndex === -1 || yIndex === -1) {
+                console.error('❌ Available headers:', headers);
+                throw new Error(`Missing coordinate columns. Please ensure CSV has x and y coordinate columns.`);
+            }
+            
+            console.log(`✅ Using columns: X="${lines[0].split(',')[xIndex].trim()}" (index ${xIndex}), Y="${lines[0].split(',')[yIndex].trim()}" (index ${yIndex})`);
+            
+            const parsedData = [];
+            let skippedRows = 0;
+            
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue; // Skip empty lines
+                
+                const values = lines[i].split(',');
+                
+                // Debug first row
+                if (i === 1) {
+                    console.log('🔍 First data row values:', values);
+                    console.log(`🔍 Value at xIndex ${xIndex}:`, values[xIndex]);
+                    console.log(`🔍 Value at yIndex ${yIndex}:`, values[yIndex]);
+                }
+                
+                // Parse coordinates from detected columns
+                const x = parseFloat(values[xIndex]);
+                const y = parseFloat(values[yIndex]);
+                
+                // Skip invalid points
+                if (isNaN(x) || isNaN(y)) {
+                    skippedRows++;
+                    continue;
+                }
+                
+                const point = {
+                    timestamp: parseFloat(values[headers.indexOf('timestamp')] || values[headers.indexOf('time')] || i * 100),
+                    x: x,
+                    y: y,
+                    fixation_duration: parseFloat(values[headers.indexOf('fixation_duration')] || values[headers.indexOf('duration')] || 200),
+                    pupil_size: parseFloat(values[headers.indexOf('pupil_size')] || values[headers.indexOf('pupil')] || 3.5)
+                };
+                
+                parsedData.push(point);
+            }
+            
+            if (skippedRows > 0) {
+                console.log(`⚠️ Skipped ${skippedRows} invalid rows`);
+            }
+            
+            if (parsedData.length === 0) {
+                throw new Error('No valid data points found in CSV');
+            }
+            
+            // Calculate statistics before storing
+            const xValues = parsedData.map(d => d.x);
+            const yValues = parsedData.map(d => d.y);
+            const xMin = Math.min(...xValues);
+            const xMax = Math.max(...xValues);
+            const yMin = Math.min(...yValues);
+            const yMax = Math.max(...yValues);
+            const xRange = xMax - xMin;
+            const yRange = yMax - yMin;
+            
+            console.log(`✅ Parsed ${parsedData.length} data points from CSV`);
+            console.log(`📊 Raw coordinate ranges: X[${xMin.toFixed(2)}, ${xMax.toFixed(2)}] (range: ${xRange.toFixed(2)}), Y[${yMin.toFixed(2)}, ${yMax.toFixed(2)}] (range: ${yRange.toFixed(2)})`);
+            
+            // Check for suspicious data patterns
+            if (xRange < 10 && yRange < 10) {
+                console.warn('⚠️ WARNING: Very small coordinate range detected. Data might be normalized or in different units.');
+            }
+            
+            // Count zeros or negative values
+            const zeroPoints = parsedData.filter(d => d.x === 0 && d.y === 0).length;
+            const negativePoints = parsedData.filter(d => d.x < 0 || d.y < 0).length;
+            if (zeroPoints > 0) {
+                console.warn(`⚠️ Found ${zeroPoints} points at (0,0) - these might be invalid tracking points`);
+            }
+            if (negativePoints > 0) {
+                console.warn(`⚠️ Found ${negativePoints} points with negative coordinates`);
+            }
+            
+            // Store in UPLOADED data variables (not synthetic)
+            uploadedRawData = parsedData;
+            uploadedNormalizedData = normalizeCoordinates(parsedData);
+            
+            // Return raw by default
+            return uploadedRawData;
         }
         
-        // Display data summary
+        // Normalize coordinates to 0-100 range
+        function normalizeCoordinates(data) {
+            if (data.length === 0) return data;
+            
+            // Find min/max for x and y
+            const xValues = data.map(d => d.x);
+            const yValues = data.map(d => d.y);
+            
+            const xMin = Math.min(...xValues);
+            const xMax = Math.max(...xValues);
+            const yMin = Math.min(...yValues);
+            const yMax = Math.max(...yValues);
+            
+            const xRange = xMax - xMin;
+            const yRange = yMax - yMin;
+            
+            console.log(`📊 Original coordinate ranges: X[${xMin.toFixed(2)}, ${xMax.toFixed(2)}], Y[${yMin.toFixed(2)}, ${yMax.toFixed(2)}]`);
+            
+            // Normalize to 0-100
+            const normalized = data.map(d => ({
+                timestamp: d.timestamp,
+                x: xRange > 0 ? ((d.x - xMin) / xRange) * 100 : 50,
+                y: yRange > 0 ? ((d.y - yMin) / yRange) * 100 : 50,
+                fixation_duration: d.fixation_duration,
+                pupil_size: d.pupil_size
+            }));
+            
+            console.log(`✅ Normalized to 0-100 range`);
+            
+            return normalized;
+        }
+        
+        // Update coordinate mode - ONLY affects uploaded data
+        function updateCoordinateMode() {
+            const mode = document.getElementById('coordinate-mode').value;
+            coordinateMode = mode;
+            
+            if (uploadedRawData.length > 0) {
+                console.log(`🔄 Switched to ${mode} coordinates for uploaded data`);
+                
+                // Update summary with current mode
+                const currentData = mode === 'raw' ? uploadedRawData : uploadedNormalizedData;
+                displayDataSummary(currentData);
+                
+                // Re-visualize if plot exists
+                const plotDiv = document.getElementById('upload-plot');
+                if (plotDiv && plotDiv.data && plotDiv.data.length > 0) {
+                    visualizeUploadedData();
+                }
+            }
+        }
+        
+        // Display data summary - ONLY for uploaded data
         function displayDataSummary(data) {
             const summary = document.getElementById('data-summary');
+            
+            const xValues = data.map(d => d.x);
+            const yValues = data.map(d => d.y);
+            const xMin = Math.min(...xValues);
+            const xMax = Math.max(...xValues);
+            const yMin = Math.min(...yValues);
+            const yMax = Math.max(...yValues);
             
             const stats = {
                 points: data.length,
                 duration: ((data[data.length-1].timestamp - data[0].timestamp) / 1000).toFixed(2),
                 avgX: (data.reduce((sum, d) => sum + d.x, 0) / data.length).toFixed(2),
-                avgY: (data.reduce((sum, d) => sum + d.y, 0) / data.length).toFixed(2)
+                avgY: (data.reduce((sum, d) => sum + d.y, 0) / data.length).toFixed(2),
+                xRange: `[${xMin.toFixed(1)}, ${xMax.toFixed(1)}]`,
+                yRange: `[${yMin.toFixed(1)}, ${yMax.toFixed(1)}]`
             };
+            
+            const modeLabel = coordinateMode === 'raw' ? 
+                '🎯 Raw screen coordinates (perfect for stimulus overlay)' : 
+                '📊 Normalized 0-100 (for AI comparison)';
             
             summary.innerHTML = `
                 <p><strong>Total Points:</strong> ${stats.points}</p>
                 <p><strong>Duration:</strong> ${stats.duration} seconds</p>
-                <p><strong>Average X:</strong> ${stats.avgX}</p>
-                <p><strong>Average Y:</strong> ${stats.avgY}</p>
+                <p><strong>Average X:</strong> ${stats.avgX} (Range: ${stats.xRange})</p>
+                <p><strong>Average Y:</strong> ${stats.avgY} (Range: ${stats.yRange})</p>
+                <p style="color: #667eea; font-size: 0.9em; margin-top: 10px;"><em>${modeLabel}</em></p>
             `;
         }
         
-        // Visualize uploaded data
+        // Visualize uploaded data - ONLY uses uploaded data variables
         function visualizeUploadedData() {
-            if (currentData.length === 0) {
+            if (uploadedRawData.length === 0) {
                 showStatus('upload-status', '❌ No data to visualize', 'error');
                 return;
             }
             
+            // Use the correct data based on coordinate mode
+            let dataToVisualize = coordinateMode === 'raw' ? uploadedRawData : uploadedNormalizedData;
+            
+            // Check if all coordinates are zero (parsing issue)
+            const allZeros = dataToVisualize.every(d => d.x === 0 && d.y === 0);
+            if (allZeros) {
+                showStatus('upload-status', '⚠️ Warning: All coordinates are zero. Check CSV format (expected columns: x, y or gaze_x, gaze_y)', 'error');
+                console.error('❌ CSV parsing issue - all coordinates are 0,0');
+                return;
+            }
+            
+            // Downsample if too many points (max 5000 for smooth rendering)
+            const MAX_POINTS = 5000;
+            if (dataToVisualize.length > MAX_POINTS) {
+                const samplingRate = Math.ceil(dataToVisualize.length / MAX_POINTS);
+                const sampledData = dataToVisualize.filter((_, index) => index % samplingRate === 0);
+                console.log(`⚠️ Downsampling: ${dataToVisualize.length} → ${sampledData.length} points (every ${samplingRate}th point)`);
+                dataToVisualize = sampledData;
+                
+                showStatus('upload-status', `📊 Visualizing ${sampledData.length} sampled points (from ${uploadedRawData.length} total)`, 'info');
+            }
+            
             const plotType = document.getElementById('upload-plot-type').value;
-            visualizePlot('upload-plot', currentData, plotType, 'Uploaded Eye-Tracking Data');
+            
+            console.log(`📊 Visualizing ${dataToVisualize.length} points in ${coordinateMode} mode`);
+            
+            // Show sample of data being visualized
+            if (dataToVisualize.length > 0) {
+                console.log('📍 Sample points:', dataToVisualize.slice(0, 5).map(d => `(${d.x.toFixed(2)}, ${d.y.toFixed(2)})`).join(', '));
+            }
+            
+            // Visualize in upload-plot container ONLY
+            visualizePlot('upload-plot', dataToVisualize, plotType, `Uploaded Data (${coordinateMode} coordinates)`);
         }
         
-        // Compare to baseline
+        // Compare to baseline - ONLY uses uploaded normalized data
         async function compareToBaseline() {
-            if (currentData.length === 0) {
+            if (uploadedRawData.length === 0) {
                 showStatus('upload-status', '❌ No data loaded. Please upload CSV first.', 'error');
                 return;
             }
@@ -937,6 +1310,15 @@
                 showStatus('upload-status', '❌ AI model not loaded', 'error');
                 return;
             }
+            
+            // Always use normalized data for AI comparison
+            const dataForComparison = uploadedNormalizedData;
+            
+            if (coordinateMode === 'raw') {
+                console.log('⚠️ AI comparison requires normalized coordinates. Automatically using normalized data.');
+            }
+            
+            console.log(`🤖 Comparing ${dataForComparison.length} normalized data points to ${currentAgeGroup} baseline`);
             
             // Switch to AI Analysis tab
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
@@ -949,7 +1331,7 @@
             document.getElementById('ai-results').style.display = 'none';
             
             try {
-                const results = await baselineModel.compareToBaseline(currentData);
+                const results = await baselineModel.compareToBaseline(dataForComparison);
                 
                 // Hide loading
                 document.getElementById('ai-loading').style.display = 'none';
@@ -962,7 +1344,7 @@
                 // Detailed metrics
                 document.getElementById('detailed-metrics').innerHTML = `
                     <p><strong>Reconstruction Error:</strong> ${results.reconstructionError.toFixed(4)}</p>
-                    <p><strong>Data Points:</strong> ${currentData.length}</p>
+                    <p><strong>Data Points:</strong> ${dataForComparison.length}</p>
                     <p><strong>Features Analyzed:</strong> 28</p>
                 `;
                 
@@ -974,23 +1356,30 @@
                     'Gaze Entropy', 'Center Bias', 'Edge Bias', 'ROI Focus', 'V/H Ratio',
                     'Temporal Consistency', 'Attention Switches', 'Revisit Rate'];
                 
-                let featureHTML = '<table style="width:100%; border-collapse: collapse;">';
-                featureHTML += '<tr><th style="text-align:left; padding: 5px; border-bottom: 1px solid #ddd;">Feature</th>';
-                featureHTML += '<th style="text-align:right; padding: 5px; border-bottom: 1px solid #ddd;">Z-Score</th></tr>';
-                
-                results.zScores.forEach((z, i) => {
-                    const absZ = Math.abs(z);
-                    if (absZ > 1.5) {  // Show significant deviations
-                        const color = absZ > 2 ? '#dc3545' : '#ffc107';
-                        featureHTML += `<tr style="background: ${color}22;">`;
-                        featureHTML += `<td style="padding: 5px;">${featureNames[i]}</td>`;
-                        featureHTML += `<td style="padding: 5px; text-align: right;">${z.toFixed(2)}</td>`;
-                        featureHTML += '</tr>';
-                    }
-                });
-                
-                featureHTML += '</table>';
-                document.getElementById('feature-analysis').innerHTML = featureHTML;
+                // Display feature analysis if available
+                if (results.zScores && results.zScores.length > 0) {
+                    let featureHTML = '<table style="width:100%; border-collapse: collapse;">';
+                    featureHTML += '<tr><th style="text-align:left; padding: 5px; border-bottom: 1px solid #ddd;">Feature</th>';
+                    featureHTML += '<th style="text-align:right; padding: 5px; border-bottom: 1px solid #ddd;">Z-Score</th></tr>';
+                    
+                    results.zScores.forEach((z, i) => {
+                        const absZ = Math.abs(z);
+                        if (absZ > 1.5) {  // Show significant deviations
+                            const color = absZ > 2 ? '#dc3545' : '#ffc107';
+                            featureHTML += `<tr style="background: ${color}22;">`;
+                            featureHTML += `<td style="padding: 5px;">${featureNames[i]}</td>`;
+                            featureHTML += `<td style="padding: 5px; text-align: right;">${z.toFixed(2)}</td>`;
+                            featureHTML += '</tr>';
+                        }
+                    });
+                    
+                    featureHTML += '</table>';
+                    document.getElementById('feature-analysis').innerHTML = featureHTML;
+                } else {
+                    // If no z-scores available, show a simple message
+                    document.getElementById('feature-analysis').innerHTML = 
+                        '<p style="padding: 10px; color: #666;">Feature analysis based on reconstruction error only.</p>';
+                }
                 
                 showStatus('ai-status', '✅ Analysis complete!', 'success');
                 
@@ -1001,12 +1390,54 @@
             }
         }
         
-        // Visualization function (simplified - add full Plotly code here)
+        // Visualization function - optimized for large datasets
         function visualizePlot(containerId, data, plotType, title) {
+            console.log(`🎨 Starting visualization: ${data.length} points, type: ${plotType}`);
+            
+            // Clear any existing plot first
+            const container = document.getElementById(containerId);
+            Plotly.purge(container);
+            
             const x = data.map(d => d.x);
             const y = data.map(d => d.y);
             
-            let plotData, layout;
+            const xMin = Math.min(...x);
+            const xMax = Math.max(...x);
+            const yMin = Math.min(...y);
+            const yMax = Math.max(...y);
+            
+            console.log(`📊 X range: [${xMin.toFixed(2)}, ${xMax.toFixed(2)}]`);
+            console.log(`📊 Y range: [${yMin.toFixed(2)}, ${yMax.toFixed(2)}]`);
+            
+            // Check if data is valid
+            if (xMin === xMax && yMin === yMax) {
+                console.error('❌ All points have the same coordinates!');
+                document.getElementById(containerId).innerHTML = 
+                    `<div style="padding: 20px; color: red;">
+                        <h3>⚠️ Invalid Data</h3>
+                        <p>All data points have the same coordinates (${xMin.toFixed(2)}, ${yMin.toFixed(2)})</p>
+                        <p>Please check your CSV file format and column names.</p>
+                    </div>`;
+                return;
+            }
+            
+            let plotData;
+            
+            // Common layout settings
+            const layout = {
+                title: title,
+                xaxis: { 
+                    title: 'X Position',
+                    autorange: true
+                },
+                yaxis: { 
+                    title: 'Y Position',
+                    autorange: 'reversed'  // Eye-tracking typically has Y increasing downward
+                },
+                height: 600,
+                hovermode: 'closest',
+                showlegend: false
+            };
             
             switch(plotType) {
                 case 'scatter':
@@ -1016,23 +1447,32 @@
                         mode: 'markers',
                         type: 'scatter',
                         marker: {
-                            size: 8,
+                            size: 5,
                             color: data.map((d, i) => i),
                             colorscale: 'Viridis',
-                            showscale: true
+                            showscale: true,
+                            colorbar: {
+                                title: 'Sequence'
+                            }
                         }
                     }];
                     break;
                     
                 case 'heatmap':
-                    // Create 2D histogram for heatmap
+                    // Use histogram2d for large datasets
                     plotData = [{
                         x: x,
                         y: y,
                         type: 'histogram2d',
                         colorscale: 'Hot',
-                        reversescale: true
+                        reversescale: true,
+                        nbinsx: 50,
+                        nbinsy: 50,
+                        colorbar: {
+                            title: 'Fixation<br>Density'
+                        }
                     }];
+                    layout.title = title + ' - Fixation Density';
                     break;
                     
                 case 'path':
@@ -1041,9 +1481,125 @@
                         y: y,
                         mode: 'lines+markers',
                         type: 'scatter',
-                        line: { color: '#667eea', width: 2 },
-                        marker: { size: 5, color: '#764ba2' }
+                        line: { 
+                            color: '#667eea', 
+                            width: 1 
+                        },
+                        marker: { 
+                            size: 3, 
+                            color: '#764ba2' 
+                        }
                     }];
+                    layout.title = title + ' - Scan Path';
+                    break;
+                    
+                case 'histogram':
+                    // Show distribution of X and Y separately
+                    plotData = [
+                        {
+                            x: x,
+                            type: 'histogram',
+                            name: 'X Distribution',
+                            marker: { color: '#667eea' },
+                            opacity: 0.7,
+                            nbinsx: 30
+                        },
+                        {
+                            x: y,
+                            type: 'histogram',
+                            name: 'Y Distribution',
+                            marker: { color: '#764ba2' },
+                            opacity: 0.7,
+                            nbinsx: 30
+                        }
+                    ];
+                    layout.xaxis.title = 'Position (pixels)';
+                    layout.yaxis.title = 'Frequency';
+                    layout.yaxis.autorange = true; // Don't reverse for histogram
+                    layout.barmode = 'overlay';
+                    layout.showlegend = true;
+                    layout.title = title + ' - Position Distribution';
+                    break;
+                    
+                case 'density':
+                    // Density contour plot
+                    plotData = [{
+                        x: x,
+                        y: y,
+                        type: 'histogram2dcontour',
+                        colorscale: 'Viridis',
+                        contours: {
+                            showlabels: true,
+                            labelfont: {
+                                family: 'Raleway',
+                                size: 12,
+                                color: 'white'
+                            }
+                        },
+                        colorbar: {
+                            title: 'Density'
+                        }
+                    }];
+                    layout.title = title + ' - Density Contour';
+                    break;
+                    
+                case '3d':
+                    // 3D trajectory with time as Z-axis
+                    const timestamps = data.map(d => d.timestamp);
+                    plotData = [{
+                        x: x,
+                        y: y,
+                        z: timestamps,
+                        mode: 'markers+lines',
+                        type: 'scatter3d',
+                        marker: {
+                            size: 3,
+                            color: timestamps,
+                            colorscale: 'Viridis',
+                            showscale: true,
+                            colorbar: {
+                                title: 'Time'
+                            }
+                        },
+                        line: {
+                            color: '#667eea',
+                            width: 2
+                        }
+                    }];
+                    layout.scene = {
+                        xaxis: { title: 'X Position' },
+                        yaxis: { title: 'Y Position' },
+                        zaxis: { title: 'Time (ms)' }
+                    };
+                    layout.title = title + ' - 3D Trajectory';
+                    delete layout.xaxis;
+                    delete layout.yaxis;
+                    break;
+                    
+                case 'temporal':
+                    // X and Y positions over time
+                    const times = data.map(d => d.timestamp);
+                    plotData = [
+                        {
+                            x: times,
+                            y: x,
+                            mode: 'lines',
+                            name: 'X Position',
+                            line: { color: '#667eea', width: 2 }
+                        },
+                        {
+                            x: times,
+                            y: y,
+                            mode: 'lines',
+                            name: 'Y Position',
+                            line: { color: '#764ba2', width: 2 }
+                        }
+                    ];
+                    layout.xaxis.title = 'Time (ms)';
+                    layout.yaxis.title = 'Position (pixels)';
+                    layout.yaxis.autorange = true; // Don't reverse for temporal
+                    layout.showlegend = true;
+                    layout.title = title + ' - Temporal Analysis';
                     break;
                     
                 default:
@@ -1051,18 +1607,38 @@
                         x: x,
                         y: y,
                         mode: 'markers',
-                        type: 'scatter'
+                        type: 'scatter',
+                        marker: { 
+                            size: 5,
+                            color: '#667eea'
+                        }
                     }];
             }
             
-            layout = {
-                title: title,
-                xaxis: { title: 'X Position', range: [0, 100] },
-                yaxis: { title: 'Y Position', range: [0, 100] },
-                height: 500
+            // Use responsive layout with proper config
+            const config = {
+                responsive: true,
+                displayModeBar: true,
+                displaylogo: false
             };
             
-            Plotly.newPlot(containerId, plotData, layout, {responsive: true});
+            console.log('🎨 Rendering plot with Plotly...');
+            console.log(`📊 Plot data: ${plotData[0].x.length} x-values, ${plotData[0].y.length} y-values`);
+            
+            // Render with error handling
+            Plotly.newPlot(containerId, plotData, layout, config)
+                .then(() => {
+                    console.log('✅ Plot rendered successfully');
+                })
+                .catch(error => {
+                    console.error('❌ Plotly rendering error:', error);
+                    document.getElementById(containerId).innerHTML = 
+                        `<div style="padding: 20px; color: red;">
+                            <h3>Visualization Error</h3>
+                            <p>${error.message}</p>
+                            <p>Try reducing the data size or selecting a different plot type.</p>
+                        </div>`;
+                });
         }
     </script>
 </body>
