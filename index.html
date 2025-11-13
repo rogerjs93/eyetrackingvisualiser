@@ -41,18 +41,101 @@
             color: white;
             padding: 40px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
         
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
             font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Animated Title */
+        .animated-title {
+            display: inline-block;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .animated-title span {
+            display: inline-block;
+            opacity: 0;
+            animation: letterAppear 0.5s ease-out forwards;
+        }
+        
+        @keyframes letterAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Floating background elements */
+        .header::before,
+        .header::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .header::before {
+            width: 300px;
+            height: 300px;
+            background: white;
+            top: -150px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+        
+        .header::after {
+            width: 200px;
+            height: 200px;
+            background: white;
+            bottom: -100px;
+            right: -50px;
+            animation-delay: 3s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
         }
         
         .header p {
             font-size: 1.1em;
             opacity: 0.95;
             margin-top: 10px;
+            position: relative;
+            z-index: 2;
+            animation: fadeIn 1.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 0.95; }
         }
         
         .header .beta-badge {
@@ -62,6 +145,18 @@
             border-radius: 20px;
             font-size: 0.85em;
             margin-top: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0);
+            }
         }
         
         /* Tab Navigation */
@@ -86,17 +181,41 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab-button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
         }
         
         .tab-button:hover {
             background: #e9ecef;
             color: #495057;
+            transform: translateY(-2px);
+        }
+        
+        .tab-button:hover::after {
+            width: 80%;
         }
         
         .tab-button.active {
             color: #667eea;
-            border-bottom-color: #667eea;
+            border-bottom-color: transparent;
             background: white;
+        }
+        
+        .tab-button.active::after {
+            width: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
         }
         
         .tab-icon {
@@ -126,6 +245,25 @@
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
+            opacity: 0;
+            animation: slideInLeft 0.6s ease-out forwards;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .info-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
         
         .info-card h3 {
@@ -148,6 +286,14 @@
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+            transition: all 0.3s ease;
+        }
+        
+        .control-section:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
         }
         
         .control-section h3 {
@@ -204,6 +350,26 @@
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
         }
         
         .btn-primary:hover {
@@ -214,10 +380,13 @@
         .btn-secondary {
             background: #6c757d;
             color: white;
+            transition: all 0.3s ease;
         }
         
         .btn-secondary:hover {
             background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
         }
         
         .btn:disabled {
@@ -414,7 +583,7 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>🧠 Eye-Tracking Data Visualizer</h1>
+            <h1 class="animated-title" id="mainTitle">🧠 Eye-Tracking Data Visualizer</h1>
             <p>AI-Powered Analysis with Age-Specific ASD Baselines</p>
             <div class="beta-badge">✨ TensorFlow.js AI Features</div>
         </div>
@@ -1640,6 +1809,32 @@
                         </div>`;
                 });
         }
+        
+        // Initialize animations on page load
+        window.addEventListener('load', () => {
+            // Animate title letters
+            const title = document.getElementById('mainTitle');
+            if (title) {
+                const text = title.textContent;
+                title.innerHTML = '';
+                text.split('').forEach((char, i) => {
+                    const span = document.createElement('span');
+                    span.textContent = char;
+                    span.style.animationDelay = `${i * 0.05}s`;
+                    title.appendChild(span);
+                });
+            }
+            
+            // Stagger control section animations
+            document.querySelectorAll('.control-section').forEach((section, i) => {
+                section.style.animationDelay = `${0.2 + (i * 0.15)}s`;
+            });
+            
+            // Stagger info card animations
+            document.querySelectorAll('.info-card').forEach((card, i) => {
+                card.style.animationDelay = `${0.3 + (i * 0.1)}s`;
+            });
+        });
     </script>
 </body>
 </html>
