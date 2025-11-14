@@ -52,7 +52,7 @@
             },
             "kernel_regularizer": {
               "module": "keras.regularizers",
-              "class_name": "L2",
+              "class_name": "l2",
               "config": {
                 "l2": 0.001
               },
@@ -162,7 +162,7 @@
             },
             "kernel_regularizer": {
               "module": "keras.regularizers",
-              "class_name": "L2",
+              "class_name": "l2",
               "config": {
                 "l2": 0.001
               },
@@ -205,7 +205,7 @@
             },
             "kernel_regularizer": {
               "module": "keras.regularizers",
-              "class_name": "L2",
+              "class_name": "l2",
               "config": {
                 "l2": 0.001
               },
@@ -315,7 +315,7 @@
             },
             "kernel_regularizer": {
               "module": "keras.regularizers",
-              "class_name": "L2",
+              "class_name": "l2",
               "config": {
                 "l2": 0.001
               },

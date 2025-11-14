@@ -54,6 +54,26 @@ def export_weights_to_tfjs(model, output_dir):
     
     return weight_list, len(weights_bin)
 
+def fix_tfjs_compatibility(config):
+    """
+    Recursively fix Keras config for TensorFlow.js compatibility
+    - Convert 'L2' regularizer to 'l2' (lowercase)
+    - Can add more fixes as needed
+    """
+    if isinstance(config, dict):
+        # Fix L2 regularizer class name
+        if config.get('class_name') == 'L2':
+            config['class_name'] = 'l2'
+        
+        # Recursively process all dict values
+        for key, value in config.items():
+            config[key] = fix_tfjs_compatibility(value)
+    elif isinstance(config, list):
+        # Recursively process list items
+        return [fix_tfjs_compatibility(item) for item in config]
+    
+    return config
+
 def create_model_json(model, weight_list, weights_size, output_dir):
     """Create model.json with architecture and weight manifest"""
     
@@ -73,6 +93,9 @@ def create_model_json(model, weight_list, weights_size, output_dir):
         if layer.__class__.__name__ == 'InputLayer' and 'batch_shape' in layer_config:
             # TensorFlow.js expects 'batchInputShape' not 'batch_shape'
             layer_config['batchInputShape'] = layer_config.pop('batch_shape')
+        
+        # Fix regularizers and other compatibility issues
+        layer_config = fix_tfjs_compatibility(layer_config)
         
         model_topology['config']['layers'].append({
             'class_name': layer.__class__.__name__,
