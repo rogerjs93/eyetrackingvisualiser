@@ -4,21 +4,35 @@ __pycache__/
 *$py.class
 
 # Autism dataset - too large for GitHub (download from Kaggle)
+data/raw/autism/
 data/autism/
 
-# Standard dataset - too large for GitHub
+# Standard dataset - too large for GitHub (1000+ participants, HDF5 files)
+data/raw/standard/
 data/standard/
 *.hdf
 *.hdf5
 *.zip
 
-# Large model files - keep only TF.js versions
+# Processed data arrays
+data/processed/prepared/*.npy
+
+# Large model files - keep only TF.js versions for production
 *.keras
 *.h5
+*.pkl
 
-# Allow model files to be committed
-!models/
-!models/**/*
+# Keep production models (TensorFlow.js)
+!models/production/**/*.json
+!models/production/**/*.bin
+
+# Exclude training models (Keras) - too large
+models/training/**/*.keras
+models/training/**/*.h5
+models/training/**/*.pkl
+
+# Exclude archive models
+models/archive/
 
 # Distribution / packaging
 .Python
@@ -75,8 +89,12 @@ venv.bak/
 Thumbs.db
 
 # Project specific
-*.png
-*.txt
-!requirements.txt
-!README.md
 *.log
+
+# Keep important images
+!web/assets/*.png
+!docs/**/*.png
+
+# Keep text files that are documentation
+!*.md
+!requirements.txt

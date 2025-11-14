@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test AI Tabs</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+    <h1>Test: AI Analysis Functions</h1>
+    <button onclick="testAnalysis()">Test Analysis</button>
+    <div id="output" style="padding: 20px; margin: 20px; background: #f0f0f0;"></div>
+    
+    <script src="visualizer.js"></script>
+    <script>
+        function testAnalysis() {
+            console.log("Testing AI analysis...");
+            
+            // Generate some test data
+            const testData = [];
+            for(let i = 0; i < 100; i++) {
+                testData.push({
+                    x: Math.random() * 1920,
+                    y: Math.random() * 1080,
+                    timestamp: i * 200,
+                    duration: 150 + Math.random() * 150
+                });
+            }
+            
+            console.log("Test data created:", testData.length, "points");
+            
+            try {
+                analyzeAIPatterns(testData);
+                console.log("AI analysis completed!");
+                
+                analyzeCognitiveLoad(testData);
+                console.log("Cognitive load analysis completed!");
+                
+                document.getElementById('output').innerHTML = '<p style="color: green;">✓ Both analyses completed successfully!</p><p>Check the AI and Cognitive tabs in the main page.</p>';
+            } catch(e) {
+                console.error("Error:", e);
+                document.getElementById('output').innerHTML = '<p style="color: red;">✗ Error: ' + e.message + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>

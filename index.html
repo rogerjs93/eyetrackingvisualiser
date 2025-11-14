@@ -1744,17 +1744,17 @@
                 
                 // Set model path based on age group
                 if (currentAgeGroup === 'adult') {
-                    baselineModel.modelPath = 'models/baseline_adult_asd_tfjs/model.json';
-                    baselineModel.scalerPath = 'models/baseline_adult_asd_tfjs/scaler.json';
+                    baselineModel.modelPath = 'models/production/adult_asd/model.json';
+                    baselineModel.scalerPath = 'models/production/adult_asd/scaler.json';
                     baselineModel.threshold = 0.6065; // Adult threshold
                 } else if (currentAgeGroup === 'neurotypical') {
-                    baselineModel.modelPath = 'models/baseline_neurotypical_tfjs/model.json';
-                    baselineModel.scalerPath = 'models/baseline_neurotypical_tfjs/scaler.json';
+                    baselineModel.modelPath = 'models/production/neurotypical/model.json';
+                    baselineModel.scalerPath = 'models/production/neurotypical/scaler.json';
                     baselineModel.threshold = 0.3478; // Neurotypical threshold
                 } else {
-                    baselineModel.modelPath = 'models/baseline_children_asd_tfjs/model.json';
-                    baselineModel.scalerPath = 'models/baseline_children_asd_tfjs/scaler.json';
-                    baselineModel.threshold = 0.4069; // Children threshold
+                    // Use OPTIMIZED children model (20 features, lightweight)
+                    baselineModel.useOptimizedChildrenModel();
+                    // Alternative: baselineModel.useLegacyChildrenModel(); for old 28-feature model
                 }
                 
                 await baselineModel.loadModel();
