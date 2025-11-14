@@ -67,11 +67,17 @@ def create_model_json(model, weight_list, weights_size, output_dir):
     }
     
     for layer in model.layers:
-        layer_config = {
+        layer_config = layer.get_config()
+        
+        # Fix InputLayer config for TensorFlow.js compatibility
+        if layer.__class__.__name__ == 'InputLayer' and 'batch_shape' in layer_config:
+            # TensorFlow.js expects 'batchInputShape' not 'batch_shape'
+            layer_config['batchInputShape'] = layer_config.pop('batch_shape')
+        
+        model_topology['config']['layers'].append({
             'class_name': layer.__class__.__name__,
-            'config': layer.get_config()
-        }
-        model_topology['config']['layers'].append(layer_config)
+            'config': layer_config
+        })
     
     # Create full model JSON
     model_json = {
