@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Loading Diagnostic</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0"></script>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        h1 { color: #4ec9b0; }
+        .test { 
+            margin: 20px 0;
+            padding: 15px;
+            background: #252526;
+            border-left: 4px solid #007acc;
+        }
+        .success { border-left-color: #4ec9b0; }
+        .error { border-left-color: #f48771; }
+        .pending { border-left-color: #ce9178; }
+        pre { 
+            background: #1e1e1e;
+            padding: 10px;
+            overflow-x: auto;
+            border: 1px solid #3c3c3c;
+        }
+        .status { font-weight: bold; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 GitHub Pages Model Loading Diagnostic</h1>
+    <div id="results"></div>
+
+    <script>
+        const results = document.getElementById('results');
+
+        function addTest(title, status, message) {
+            const div = document.createElement('div');
+            div.className = `test ${status}`;
+            div.innerHTML = `
+                <div class="status">${status === 'success' ? '✅' : status === 'error' ? '❌' : '⏳'} ${title}</div>
+                <pre>${message}</pre>
+            `;
+            results.appendChild(div);
+        }
+
+        async function testModelFiles() {
+            addTest('Environment Check', 'pending', 
+                `Location: ${window.location.href}\nHostname: ${window.location.hostname}\nProtocol: ${window.location.protocol}`);
+
+            // Determine base URL
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const baseUrl = isLocal ? '' : 'https://rogerjs93.github.io/eyetrackingvisualiser/';
+            
+            addTest('Base URL', 'success', `${baseUrl || 'relative paths'}`);
+
+            // Test paths
+            const paths = [
+                'models/production/children_asd_optimized/model.json',
+                'models/production/children_asd_optimized/group1-shard1of1.bin',
+                'models/production/children_asd_optimized/scaler.json',
+                'models/production/children_asd_optimized/preprocessing.json',
+                'models/production/adult_asd/model.json',
+                'models/production/neurotypical/model.json'
+            ];
+
+            for (const path of paths) {
+                const fullPath = `${baseUrl}${path}`;
+                try {
+                    const response = await fetch(fullPath, { method: 'HEAD' });
+                    if (response.ok) {
+                        addTest(path, 'success', 
+                            `Status: ${response.status}\nContent-Type: ${response.headers.get('content-type')}\nSize: ${response.headers.get('content-length')} bytes`);
+                    } else {
+                        addTest(path, 'error', 
+                            `Status: ${response.status} ${response.statusText}\nURL: ${fullPath}`);
+                    }
+                } catch (error) {
+                    addTest(path, 'error', 
+                        `Error: ${error.message}\nURL: ${fullPath}`);
+                }
+            }
+
+            // Try loading actual model
+            try {
+                const modelPath = `${baseUrl}models/production/children_asd_optimized/model.json`;
+                addTest('TensorFlow.js Model Loading', 'pending', 'Attempting to load model...');
+                
+                const model = await tf.loadLayersModel(modelPath);
+                addTest('TensorFlow.js Model Loading', 'success', 
+                    `Model loaded successfully!\nInput shape: ${JSON.stringify(model.inputs[0].shape)}\nOutput shape: ${JSON.stringify(model.outputs[0].shape)}`);
+            } catch (error) {
+                addTest('TensorFlow.js Model Loading', 'error', 
+                    `Failed to load model: ${error.message}\nStack: ${error.stack}`);
+            }
+        }
+
+        testModelFiles();
+    </script>
+</body>
+</html>
