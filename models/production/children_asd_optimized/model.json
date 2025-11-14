@@ -10,14 +10,14 @@
         {
           "class_name": "InputLayer",
           "config": {
-            "batchInputShape": [
-              null,
-              20
-            ],
             "dtype": "float32",
             "sparse": false,
             "ragged": false,
-            "name": "input_layer_3"
+            "name": "input_layer_3",
+            "batchInputShape": [
+              null,
+              20
+            ]
           }
         },
         {
@@ -50,14 +50,7 @@
               "config": {},
               "registered_name": null
             },
-            "kernel_regularizer": {
-              "module": "keras.regularizers",
-              "class_name": "l2",
-              "config": {
-                "l2": 0.001
-              },
-              "registered_name": null
-            },
+            "kernel_regularizer": null,
             "bias_regularizer": null,
             "kernel_constraint": null,
             "bias_constraint": null
@@ -160,14 +153,7 @@
               "config": {},
               "registered_name": null
             },
-            "kernel_regularizer": {
-              "module": "keras.regularizers",
-              "class_name": "l2",
-              "config": {
-                "l2": 0.001
-              },
-              "registered_name": null
-            },
+            "kernel_regularizer": null,
             "bias_regularizer": null,
             "kernel_constraint": null,
             "bias_constraint": null
@@ -203,14 +189,7 @@
               "config": {},
               "registered_name": null
             },
-            "kernel_regularizer": {
-              "module": "keras.regularizers",
-              "class_name": "l2",
-              "config": {
-                "l2": 0.001
-              },
-              "registered_name": null
-            },
+            "kernel_regularizer": null,
             "bias_regularizer": null,
             "kernel_constraint": null,
             "bias_constraint": null
@@ -313,14 +292,7 @@
               "config": {},
               "registered_name": null
             },
-            "kernel_regularizer": {
-              "module": "keras.regularizers",
-              "class_name": "l2",
-              "config": {
-                "l2": 0.001
-              },
-              "registered_name": null
-            },
+            "kernel_regularizer": null,
             "bias_regularizer": null,
             "kernel_constraint": null,
             "bias_constraint": null

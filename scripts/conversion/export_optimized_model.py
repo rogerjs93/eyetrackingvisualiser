@@ -57,13 +57,17 @@ def export_weights_to_tfjs(model, output_dir):
 def fix_tfjs_compatibility(config):
     """
     Recursively fix Keras config for TensorFlow.js compatibility
-    - Convert 'L2' regularizer to 'l2' (lowercase)
-    - Can add more fixes as needed
+    - Remove regularizers (not needed for inference, only training)
+    - Fix any other compatibility issues
     """
     if isinstance(config, dict):
-        # Fix L2 regularizer class name
-        if config.get('class_name') == 'L2':
-            config['class_name'] = 'l2'
+        # Remove regularizer references (cause issues in TensorFlow.js, not needed for inference)
+        if 'kernel_regularizer' in config and config['kernel_regularizer'] is not None:
+            config['kernel_regularizer'] = None
+        if 'bias_regularizer' in config and config['bias_regularizer'] is not None:
+            config['bias_regularizer'] = None
+        if 'activity_regularizer' in config and config['activity_regularizer'] is not None:
+            config['activity_regularizer'] = None
         
         # Recursively process all dict values
         for key, value in config.items():
